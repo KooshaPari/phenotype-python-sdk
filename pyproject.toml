@@ -1,0 +1,9 @@
+[build-system]
+requires = ['hatchling']
+build-backend = 'hatchling.build'
+[project]
+name = 'phenotype-python-sdk'
+version = '0.1.0'
+description = 'Phenotype org Python SDK'
+[tool.hatch.build.targets.wheel]
+packages = ['packages']
