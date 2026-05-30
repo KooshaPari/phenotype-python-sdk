@@ -1,0 +1,21 @@
+# McpKit Python Workspace
+# Uses Poetry for dependency management
+
+[tool.poetry]
+name = "McpKit"
+version = "0.1.0"
+description = "Model Context Protocol"
+authors = ["Phenotype Team <team@phenotype.dev>"]
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8,<10"
+black = ">=24,<27"
+ruff = ">=0.4,<0.16"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

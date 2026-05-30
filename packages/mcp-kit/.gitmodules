@@ -1,0 +1,4 @@
+[submodule "python/pheno-mcp"]
+	path = python/pheno-mcp
+	url = https://github.com/KooshaPari/PhenoMCP.git
+	branch = main

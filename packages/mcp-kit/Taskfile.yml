@@ -1,0 +1,294 @@
+version: "3"
+
+vars:
+  RUST_PACKAGES:
+    sh: |
+      find rust -mindepth 1 -maxdepth 1 -name 'phenotype-mcp-*' -type d \
+        -exec test -f '{}/Cargo.toml' ';' -print \
+        | sed 's#rust/##' \
+        | tr '\n' ' ' || true
+  PYTHON_ROOTS:
+    sh: |
+      find . -path './.git' -prune -o \
+        -path './rust/mcp-forge/integrationtests' -prune -o \
+        -name pyproject.toml -type f -print \
+        | sed 's#/pyproject.toml$##; s#^\.$#.#; s#^\./##' \
+        | tr '\n' ' ' || true
+  TS_ROOT: typescript
+  GO_MODULES:
+    sh: |
+      find . -path './.git' -prune -o \
+        -path './rust/mcp-forge/integrationtests' -prune -o \
+        -name go.mod -type f -print \
+        | sed 's#/go.mod$##; s#^\./##' \
+        | tr '\n' ' ' || true
+  GO_CMD:
+    sh: |
+      if [ -x /opt/homebrew/bin/go ]; then
+        echo /opt/homebrew/bin/go
+      else
+        command -v go
+      fi
+  GOFMT_CMD:
+    sh: |
+      if [ -x /opt/homebrew/bin/gofmt ]; then
+        echo /opt/homebrew/bin/gofmt
+      else
+        command -v gofmt
+      fi
+
+tasks:
+  default:
+    desc: Run the default workspace build
+    cmds:
+      - task: build
+
+  build:
+    desc: Build detected language surfaces
+    cmds:
+      - cmd: |
+          set -eu
+          ran=0
+
+          if [ -n "{{.RUST_PACKAGES}}" ]; then
+            echo "Building runnable Rust crates"
+            for package in {{.RUST_PACKAGES}}; do
+              echo "  - $package"
+              (cd rust && cargo build -p "$package")
+            done
+            ran=1
+          fi
+
+          if [ -n "{{.PYTHON_ROOTS}}" ]; then
+            echo "Building Python workspaces"
+            for root in {{.PYTHON_ROOTS}}; do
+              echo "  - $root"
+              python_sources="$(find "$root" \
+                \( -path "$root/.git" -o -path "$root/.venv" -o -path "$root/rust/mcp-forge/integrationtests" \) -prune -o \
+                -name '*.py' -type f -print)"
+              if [ -n "$python_sources" ]; then
+                printf '%s\n' "$python_sources" | xargs python -m py_compile
+              else
+                echo "    no Python sources to compile"
+              fi
+            done
+            ran=1
+          fi
+
+          if [ -f "{{.TS_ROOT}}/package.json" ] && [ -f "{{.TS_ROOT}}/tsconfig.json" ]; then
+            echo "Building TypeScript workspace"
+            (cd "{{.TS_ROOT}}" && npm run build)
+            ran=1
+          elif [ -f "{{.TS_ROOT}}/package.json" ]; then
+            echo "Skipping TypeScript build: scaffold detected without tsconfig.json"
+          fi
+
+          if [ -n "{{.GO_MODULES}}" ]; then
+            echo "Building Go modules"
+            for module in {{.GO_MODULES}}; do
+              echo "  - $module"
+              packages="$(cd "$module" && {{.GO_CMD}} list ./... | grep -v '/integrationtests/' | grep -v '/internal/watcher/testing$' | tr '\n' ' ' || true)"
+              if [ -n "$packages" ]; then
+                (cd "$module" && {{.GO_CMD}} build $packages)
+              else
+                echo "    no default Go packages detected"
+              fi
+            done
+            ran=1
+          elif [ -f "go/go.work" ]; then
+            echo "Skipping Go build: scaffold detected without go.mod"
+          fi
+
+          if [ "$ran" -eq 0 ]; then
+            echo "No supported build target detected" >&2
+            exit 1
+          fi
+
+  test:
+    desc: Test detected language surfaces
+    cmds:
+      - cmd: |
+          set -eu
+          ran=0
+
+          if [ -n "{{.RUST_PACKAGES}}" ]; then
+            echo "Testing runnable Rust crates"
+            for package in {{.RUST_PACKAGES}}; do
+              echo "  - $package"
+              (cd rust && cargo test -p "$package")
+            done
+            ran=1
+          fi
+
+          if [ -n "{{.PYTHON_ROOTS}}" ]; then
+            echo "Testing Python workspaces"
+            for root in {{.PYTHON_ROOTS}}; do
+              echo "  - $root"
+              if find "$root" \
+                \( -path "$root/.git" -o -path "$root/.venv" -o -path "$root/rust/mcp-forge/integrationtests" \) -prune -o \
+                \( -name 'test_*.py' -o -name '*_test.py' \) -type f -print | grep -q .; then
+                (cd "$root" && uv run pytest)
+              else
+                echo "    no Python tests detected"
+              fi
+            done
+            ran=1
+          fi
+
+          if [ -f "{{.TS_ROOT}}/package.json" ] && [ -f "{{.TS_ROOT}}/tsconfig.json" ]; then
+            echo "Testing TypeScript workspace"
+            (cd "{{.TS_ROOT}}" && npm test)
+            ran=1
+          elif [ -f "{{.TS_ROOT}}/package.json" ]; then
+            echo "Skipping TypeScript tests: scaffold detected without tsconfig.json"
+          fi
+
+          if [ -n "{{.GO_MODULES}}" ]; then
+            echo "Testing Go modules"
+            for module in {{.GO_MODULES}}; do
+              echo "  - $module"
+              packages="$(cd "$module" && {{.GO_CMD}} list ./... | grep -v '/integrationtests/' | grep -v '/internal/watcher/testing$' | tr '\n' ' ' || true)"
+              if [ -n "$packages" ]; then
+                (cd "$module" && {{.GO_CMD}} test $packages)
+              else
+                echo "    no default Go packages detected"
+              fi
+            done
+            ran=1
+          elif [ -f "go/go.work" ]; then
+            echo "Skipping Go tests: scaffold detected without go.mod"
+          fi
+
+          if [ "$ran" -eq 0 ]; then
+            echo "No supported test target detected" >&2
+            exit 1
+          fi
+
+  lint:
+    desc: Lint detected language surfaces
+    cmds:
+      - cmd: |
+          set -eu
+          ran=0
+
+          if [ -n "{{.RUST_PACKAGES}}" ]; then
+            echo "Linting runnable Rust crates"
+            for package in {{.RUST_PACKAGES}}; do
+              echo "  - $package"
+              (cd "rust/$package" && cargo fmt --check)
+              (cd rust && cargo clippy -p "$package" --all-targets --all-features -- -D warnings)
+            done
+            ran=1
+          fi
+
+          if [ -n "{{.PYTHON_ROOTS}}" ]; then
+            echo "Linting Python workspaces"
+            for root in {{.PYTHON_ROOTS}}; do
+              echo "  - $root"
+              if find "$root" \
+                \( -path "$root/.git" -o -path "$root/.venv" -o -path "$root/rust/mcp-forge/integrationtests" \) -prune -o \
+                -name '*.py' -type f -print | grep -q .; then
+                (cd "$root" && uv run ruff check . --exclude rust/mcp-forge/integrationtests && uv run black --check . --exclude '/rust/mcp-forge/integrationtests/')
+              else
+                echo "    no Python sources to lint"
+              fi
+            done
+            ran=1
+          fi
+
+          if [ -f "{{.TS_ROOT}}/package.json" ] && [ -f "{{.TS_ROOT}}/tsconfig.json" ]; then
+            echo "Linting TypeScript workspace"
+            (cd "{{.TS_ROOT}}" && npm run lint)
+            ran=1
+          elif [ -f "{{.TS_ROOT}}/package.json" ]; then
+            echo "Skipping TypeScript lint: scaffold detected without tsconfig.json"
+          fi
+
+          if [ -n "{{.GO_MODULES}}" ]; then
+            echo "Linting Go modules"
+            for module in {{.GO_MODULES}}; do
+              echo "  - $module"
+              unformatted="$(cd "$module" && {{.GOFMT_CMD}} -l .)"
+              if [ -n "$unformatted" ]; then
+                echo "$unformatted" >&2
+                exit 1
+              fi
+              packages="$(cd "$module" && {{.GO_CMD}} list ./... | grep -v '/integrationtests/' | grep -v '/internal/watcher/testing$' | tr '\n' ' ' || true)"
+              if [ -n "$packages" ]; then
+                (cd "$module" && {{.GO_CMD}} test $packages)
+              else
+                echo "    no default Go packages detected"
+              fi
+            done
+            ran=1
+          elif [ -f "go/go.work" ]; then
+            echo "Skipping Go lint: scaffold detected without go.mod"
+          fi
+
+          if [ "$ran" -eq 0 ]; then
+            echo "No supported lint target detected" >&2
+            exit 1
+          fi
+
+  clean:
+    desc: Remove build artifacts for detected language surfaces
+    cmds:
+      - cmd: |
+          set -eu
+          ran=0
+
+          if [ -n "{{.RUST_PACKAGES}}" ]; then
+            echo "Cleaning runnable Rust crates"
+            (cd rust && cargo clean)
+            ran=1
+          fi
+
+          if [ -n "{{.PYTHON_ROOTS}}" ]; then
+            echo "Cleaning Python workspace artifacts"
+            for root in {{.PYTHON_ROOTS}}; do
+              echo "  - $root"
+              python - "$root" <<'PY'
+          import shutil
+          import sys
+          from pathlib import Path
+
+          root = Path(sys.argv[1])
+          ignored = {".git", ".venv", "node_modules", "target"}
+          for name in [".pytest_cache", ".ruff_cache", ".mypy_cache", "build", "dist"]:
+              path = root / name
+              if path.is_dir():
+                  shutil.rmtree(path)
+              elif path.exists():
+                  path.unlink()
+          for path in root.rglob("__pycache__"):
+              if not ignored.intersection(path.parts) and path.is_dir():
+                  shutil.rmtree(path)
+          for path in root.rglob("*.pyc"):
+              if not ignored.intersection(path.parts) and path.exists():
+                  path.unlink()
+          PY
+            done
+            ran=1
+          fi
+
+          if [ -f "{{.TS_ROOT}}/package.json" ]; then
+            echo "Cleaning TypeScript workspace artifacts"
+            python -c 'from pathlib import Path; import shutil; root = Path("typescript"); targets = [root / "dist", root / "coverage", root / ".turbo"]; [shutil.rmtree(path) if path.is_dir() else path.unlink() for path in targets if path.exists()]'
+            ran=1
+          fi
+
+          if [ -n "{{.GO_MODULES}}" ]; then
+            echo "Cleaning Go modules"
+            for module in {{.GO_MODULES}}; do
+              echo "  - $module"
+              (cd "$module" && {{.GO_CMD}} clean)
+            done
+            ran=1
+          elif [ -f "go/go.work" ]; then
+            echo "Skipping Go clean: scaffold detected without go.mod"
+          fi
+
+          if [ "$ran" -eq 0 ]; then
+            echo "No supported clean target detected" >&2
+            exit 1
+          fi
