@@ -1,0 +1,34 @@
+name: Build docs
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build VitePress docs
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        working-directory: docs/guides/docs
+        run: bun install --frozen-lockfile
+
+      - name: Build VitePress site
+        working-directory: docs/guides/docs
+        run: bun run docs:build

@@ -1,0 +1,14 @@
+# Generated quality gate workflow - calls reusable phenotype workflow
+permissions:
+  contents: read
+  pull-requests: read
+name: Quality Gate
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  quality:
+    uses: KooshaPari/phenotype-infrakit/.github/workflows/quality-gate.yml@main
+    secrets: inherit
