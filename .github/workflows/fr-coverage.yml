@@ -1,0 +1,16 @@
+permissions:
+  contents: read
+
+name: fr-coverage
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on: [pull_request]
+jobs:
+  fr:
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout11bd71901bbe5b1630ceea73d27597364c9af683 # v4.1.1
+      - run: echo "FR coverage check placeholder"
