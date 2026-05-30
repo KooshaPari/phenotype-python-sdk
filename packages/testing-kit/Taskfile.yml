@@ -1,0 +1,207 @@
+version: "3"
+
+vars:
+  ROOT_DIR:
+    sh: git rev-parse --show-toplevel
+  UV_CACHE_DIR: "{{.ROOT_DIR}}/.task-cache/uv"
+  DETECTED_LANGUAGES:
+    sh: |
+      root="$(git rev-parse --show-toplevel)"
+      detected=""
+      if [ -f "${root}/rust/Cargo.toml" ]; then
+        detected="${detected} rust"
+      fi
+      if find "${root}/python" \
+        -path "*/.venv" -prune -o \
+        -name pyproject.toml -print -quit 2>/dev/null | grep -q .; then
+        detected="${detected} python"
+      fi
+      echo "${detected# }"
+  RUST_DIR:
+    sh: |
+      if [ -f "$(git rev-parse --show-toplevel)/rust/Cargo.toml" ]; then
+        echo "$(git rev-parse --show-toplevel)/rust"
+      fi
+  PYTHON_PROJECTS:
+    sh: |
+      find "$(git rev-parse --show-toplevel)" \
+        \( -path "*/.git" -o -path "*/.venv" -o -path "*/target" \) -prune -o \
+        -name pyproject.toml -print | sort
+  ACTIVE_PYTHON_PROJECTS:
+    sh: |
+      if [ "${TASK_INCLUDE_PYTHON:-}" = "1" ] || [ "${TESTINGKIT_INCLUDE_PYTHON:-}" = "1" ]; then
+        find "$(git rev-parse --show-toplevel)" \
+          \( -path "*/.git" -o -path "*/.venv" -o -path "*/target" \) -prune -o \
+          -name pyproject.toml -print | sort
+      fi
+  RUST_CORE_PACKAGES: >-
+    phenotype-testing
+    phenotype-mock
+    phenotype-test-fixtures
+    phenotype-test-infra
+  RUST_SCANNER_PACKAGE: phenotype-compliance-scanner
+  RUST_SCANNER_FEATURES: async-scan
+
+tasks:
+  default:
+    desc: Run the default validation chain.
+    cmds:
+      - task: check
+
+  detect:
+    desc: Show the detected language toolchains and active task coverage.
+    cmds:
+      - |
+        set -eu
+        if [ -z "{{.DETECTED_LANGUAGES}}" ]; then
+          echo "No supported toolchains detected."
+          exit 1
+        fi
+        echo "{{.DETECTED_LANGUAGES}}"
+        if [ -n "{{.PYTHON_PROJECTS}}" ]; then
+          echo "Python projects:"
+          printf '%s\n' "{{.PYTHON_PROJECTS}}"
+          if [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
+            echo "Set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects in build/test/lint."
+          fi
+        fi
+
+  check:
+    desc: Run build, test, and lint tasks.
+    cmds:
+      - task: build
+      - task: test
+      - task: lint
+
+  build:
+    desc: Build the repo using all detected language toolchains.
+    cmds:
+      - |
+        set -eu
+        echo "Detected toolchains: {{.DETECTED_LANGUAGES}}"
+        if [ -n "{{.RUST_DIR}}" ]; then
+          (
+            cd "{{.RUST_DIR}}" &&
+            cargo build {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} &&
+            cargo build -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}}
+          )
+        fi
+
+        if [ -n "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
+          printf '%s\n' "{{.ACTIVE_PYTHON_PROJECTS}}" | while IFS= read -r pyproject; do
+            project_dir="$(dirname "${pyproject}")"
+            (cd "${project_dir}" && UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv build)
+          done
+        elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
+          echo "Skipping Python build by default; set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects."
+        fi
+
+        if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
+          echo "No supported build manifest found." >&2
+          exit 1
+        fi
+
+  test:
+    desc: Run the test suite for all detected language toolchains.
+    cmds:
+      - |
+        set -eu
+        echo "Detected toolchains: {{.DETECTED_LANGUAGES}}"
+        if [ -n "{{.RUST_DIR}}" ]; then
+          (
+            cd "{{.RUST_DIR}}" &&
+            cargo test {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} &&
+            cargo test -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}}
+          )
+        fi
+
+        if [ -n "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
+          printf '%s\n' "{{.ACTIVE_PYTHON_PROJECTS}}" | while IFS= read -r pyproject; do
+            project_dir="$(dirname "${pyproject}")"
+            if [ -d "${project_dir}/tests" ] || find "${project_dir}" \
+              -maxdepth 1 \
+              -name 'test_*.py' -print -quit | grep -q .; then
+              (cd "${project_dir}" && UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv run --with pytest pytest)
+            else
+              echo "Skipping Python tests in ${project_dir}; no top-level tests found."
+            fi
+          done
+        elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
+          echo "Skipping Python tests by default; set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects."
+        fi
+
+        if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
+          echo "No supported test manifest found." >&2
+          exit 1
+        fi
+
+  lint:
+    desc: Run formatter and linter checks for all detected language toolchains.
+    cmds:
+      - |
+        set -eu
+        echo "Detected toolchains: {{.DETECTED_LANGUAGES}}"
+        if [ -n "{{.RUST_DIR}}" ]; then
+          (
+            cd "{{.RUST_DIR}}" &&
+            cargo fmt --check &&
+            cargo clippy {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} -- -D warnings &&
+            cargo clippy -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}} -- -D warnings
+          )
+        fi
+
+        if [ -n "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
+          printf '%s\n' "{{.ACTIVE_PYTHON_PROJECTS}}" | while IFS= read -r pyproject; do
+            project_dir="$(dirname "${pyproject}")"
+            (
+              cd "${project_dir}" &&
+              UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv run --with ruff ruff check . &&
+              UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv run --with ruff ruff format --check .
+            )
+          done
+        elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
+          echo "Skipping Python lint by default; set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects."
+        fi
+
+        if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
+          echo "No supported lint manifest found." >&2
+          exit 1
+        fi
+
+  clean:
+    desc: Remove build artifacts and caches for all detected language toolchains.
+    cmds:
+      - |
+        set -eu
+        echo "Detected toolchains: {{.DETECTED_LANGUAGES}}"
+        if [ -n "{{.RUST_DIR}}" ]; then
+          (cd "{{.RUST_DIR}}" && cargo clean)
+        fi
+        python - <<'PY'
+        from pathlib import Path
+        import shutil
+
+        root = Path("{{.ROOT_DIR}}")
+        direct_paths = [
+            root / ".ruff_cache",
+            root / ".pytest_cache",
+            root / ".task-cache",
+            root / "rust" / "target",
+        ]
+        generated_names = {
+            ".venv",
+            ".mypy_cache",
+            ".pytest_cache",
+            ".ruff_cache",
+            "__pycache__",
+            "build",
+            "dist",
+        }
+
+        for path in direct_paths:
+            shutil.rmtree(path, ignore_errors=True)
+
+        for path in root.rglob("*"):
+            if path.is_dir() and (path.name in generated_names or path.name.endswith(".egg-info")):
+                shutil.rmtree(path, ignore_errors=True)
+        PY
