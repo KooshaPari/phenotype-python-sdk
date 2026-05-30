@@ -1,0 +1,153 @@
+version: "3"
+
+vars:
+  PYTHON_PROJECTS:
+    sh: find python -mindepth 2 -maxdepth 2 -name pyproject.toml -exec dirname {} \; 2>/dev/null | sort | tr '\n' ' '
+  GO_MODULES:
+    sh: find . -path './.git' -prune -o -name go.mod -exec dirname {} \; 2>/dev/null | sort | tr '\n' ' '
+  ACTIVE_LANGS:
+    sh: |
+      langs=""
+      if [ -f rust/Cargo.toml ]; then
+        langs="$langs rust"
+      fi
+      if [ -n "{{.PYTHON_PROJECTS}}" ] || [ -d tests ]; then
+        langs="$langs python"
+      fi
+      if [ -n "{{.GO_MODULES}}" ]; then
+        langs="$langs go"
+      fi
+      printf "%s" "${langs# }"
+
+tasks:
+  default:
+    cmds:
+      - task: build
+
+  detect:
+    desc: Detect active language workspaces from checked-in manifests
+    silent: true
+    cmds:
+      - |
+        set -euo pipefail
+        langs="{{.ACTIVE_LANGS}}"
+        if [ -z "$langs" ]; then
+          echo "unknown"
+        else
+          echo "$langs"
+        fi
+
+  build:
+    desc: Build all detected language workspaces
+    cmds:
+      - |
+        set -euo pipefail
+        langs="{{.ACTIVE_LANGS}}"
+        if [ -z "$langs" ]; then
+          echo "No supported language manifests found" >&2
+          exit 1
+        fi
+        for lang in $langs; do
+          case "$lang" in
+            rust)
+              cargo build --manifest-path rust/Cargo.toml --workspace
+              ;;
+            python)
+              for project in {{.PYTHON_PROJECTS}}; do
+                (cd "$project" && uv build --sdist --wheel)
+              done
+              ;;
+            go)
+              for module in {{.GO_MODULES}}; do
+                (cd "$module" && go build ./...)
+              done
+              ;;
+          esac
+        done
+
+  test:
+    desc: Run tests for all detected language workspaces
+    cmds:
+      - |
+        set -euo pipefail
+        langs="{{.ACTIVE_LANGS}}"
+        if [ -z "$langs" ]; then
+          echo "No supported language manifests found" >&2
+          exit 1
+        fi
+        for lang in $langs; do
+          case "$lang" in
+            rust)
+              cargo test --manifest-path rust/Cargo.toml --workspace
+              ;;
+            python)
+              if [ -d tests ]; then
+                uvx pytest tests
+              fi
+              for project in {{.PYTHON_PROJECTS}}; do
+                if find "$project" -type f \( -name 'test_*.py' -o -name '*_test.py' \) -print -quit | grep -q .; then
+                  (cd "$project" && uv run --with pytest pytest)
+                fi
+              done
+              ;;
+            go)
+              for module in {{.GO_MODULES}}; do
+                (cd "$module" && go test ./...)
+              done
+              ;;
+          esac
+        done
+
+  lint:
+    desc: Run linters for all detected language workspaces
+    cmds:
+      - |
+        set -euo pipefail
+        langs="{{.ACTIVE_LANGS}}"
+        if [ -z "$langs" ]; then
+          echo "No supported language manifests found" >&2
+          exit 1
+        fi
+        for lang in $langs; do
+          case "$lang" in
+            rust)
+              cargo clippy --manifest-path rust/Cargo.toml --workspace --all-targets --all-features -- -D warnings
+              cargo fmt --manifest-path rust/Cargo.toml --all --check
+              ;;
+            python)
+              if [ -d tests ]; then
+                uvx ruff check tests
+              fi
+              for project in {{.PYTHON_PROJECTS}}; do
+                (cd "$project" && uvx ruff check .)
+              done
+              ;;
+            go)
+              for module in {{.GO_MODULES}}; do
+                (cd "$module" && go vet ./...)
+                if command -v gofumpt >/dev/null 2>&1; then
+                  unformatted=$(cd "$module" && gofumpt -l .)
+                else
+                  unformatted=$(cd "$module" && gofmt -l .)
+                fi
+                if [ -n "$unformatted" ]; then
+                  echo "$unformatted"
+                  exit 1
+                fi
+              done
+              ;;
+          esac
+        done
+
+  clean:
+    desc: Clean build, cache, and generated artifacts
+    cmds:
+      - |
+        set -euo pipefail
+        if [ -f rust/Cargo.toml ]; then
+          cargo clean --manifest-path rust/Cargo.toml
+        fi
+        for module in {{.GO_MODULES}}; do
+          (cd "$module" && go clean -cache -testcache)
+        done
+        git clean -fdX python tests rust/target .pytest_cache .ruff_cache
