@@ -1,0 +1,43 @@
+# Build artifacts
+target/
+*.o
+*.so
+*.dylib
+
+# Generated files
+*.gen.rs
+*.pb.rs
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# Lock files (except workspace)
+package-lock.json
+yarn.lock
+bun.lock
+uv.lock
+*.lcov
+
+# Test coverage
+coverage/
+*.prof
+*.profraw
+docs/guides/docs-dist/
+
+# Archives (for migrated artifacts)
+.archive/

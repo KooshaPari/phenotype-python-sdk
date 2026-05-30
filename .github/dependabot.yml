@@ -1,0 +1,117 @@
+version: 2
+# Only first-party libs are listed. Scaffolding under hexagon/templates/ and
+# templates/ is intentionally excluded — those are user-facing starters, not
+# live dependency consumers for this repo.
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule: { interval: "weekly", day: "monday" }
+    groups:
+      cargo:
+        patterns: ["*"]
+    open-pull-requests-limit: 10
+  - package-ecosystem: "gomod"
+    directory: "/libs/go/phenotype-go-auth"
+    schedule: { interval: "weekly", day: "tuesday" }
+    groups:
+      go:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gomod"
+    directory: "/libs/go/phenotype-go-cli"
+    schedule: { interval: "weekly", day: "tuesday" }
+    groups:
+      go:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gomod"
+    directory: "/libs/go/phenotype-go-config"
+    schedule: { interval: "weekly", day: "tuesday" }
+    groups:
+      go:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gomod"
+    directory: "/libs/go/phenotype-go-kit"
+    schedule: { interval: "weekly", day: "tuesday" }
+    groups:
+      go:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gomod"
+    directory: "/libs/go/phenotype-go-middleware"
+    schedule: { interval: "weekly", day: "tuesday" }
+    groups:
+      go:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gomod"
+    directory: "/libs/rust/phenotype-id/go"
+    schedule: { interval: "weekly", day: "tuesday" }
+    groups:
+      go:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "npm"
+    directory: "/libs/rust/phenotype-id/typescript"
+    schedule: { interval: "weekly", day: "wednesday" }
+    groups:
+      npm:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "npm"
+    directory: "/libs/typescript/plugin-typescript"
+    schedule: { interval: "weekly", day: "wednesday" }
+    groups:
+      npm:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "npm"
+    directory: "/docs/guides/docs"
+    schedule: { interval: "weekly", day: "wednesday" }
+    groups:
+      npm:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "pip"
+    directory: "/libs/python/phenotype-py-kit"
+    schedule: { interval: "weekly", day: "thursday" }
+    groups:
+      python:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "pip"
+    directory: "/libs/rust/phenotype-id/python"
+    schedule: { interval: "weekly", day: "thursday" }
+    groups:
+      python:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "pip"
+    directory: "/libs/rust/phenotype-logging"
+    schedule: { interval: "weekly", day: "thursday" }
+    groups:
+      python:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "pip"
+    directory: "/libs/rust/phenotype-testing"
+    schedule: { interval: "weekly", day: "thursday" }
+    groups:
+      python:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "pip"
+    directory: "/configs/app/phenotype-config"
+    schedule: { interval: "weekly", day: "thursday" }
+    groups:
+      python:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule: { interval: "weekly", day: "friday" }
+    groups:
+      actions:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
