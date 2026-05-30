@@ -1,9 +1,32 @@
+# phenotype-python-sdk — root workspace (consolidated kits)
+#
+# Absorbed top-level packages (formerly standalone repos):
+#   - packages/mcp-kit          (mcp-kit)
+#   - packages/testing-kit      (testing-kit)
+#   - packages/auth-kit         (auth-kit)
+#   - packages/resilience-kit   (resilience-kit)
+#
+# Python publishable sub-projects live under each kit's python/ tree;
+# see README.md for the full list.
+
 [build-system]
 requires = ['hatchling']
 build-backend = 'hatchling.build'
+
 [project]
 name = 'phenotype-python-sdk'
 version = '0.1.0'
-description = 'Phenotype org Python SDK'
+description = 'Phenotype org Python SDK monorepo workspace'
+readme = 'README.md'
+license = { text = 'MIT' }
+
 [tool.hatch.build.targets.wheel]
 packages = ['packages']
+
+[tool.phenotype.workspace]
+members = [
+  'packages/mcp-kit',
+  'packages/testing-kit',
+  'packages/auth-kit',
+  'packages/resilience-kit',
+]
