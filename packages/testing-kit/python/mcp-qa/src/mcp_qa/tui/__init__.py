@@ -28,7 +28,6 @@ from .widgets_base import (
     TestTreeWidget,
 )
 from .widgets_filters import FilterDialogWidget
-from .widgets_oauth import OAuthStatusWidget as OAuthStatusWidgetBase
 from .widgets_results import (
     BroadcastWidget,
     CacheStatsWidget,

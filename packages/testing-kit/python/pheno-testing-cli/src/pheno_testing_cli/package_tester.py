@@ -36,7 +36,7 @@ def test_imports():
 
     return results
 
-def test_basic_functionality()  # noqa: PLR0915:
+def test_basic_functionality():  # noqa: PLR0915
     """Test basic functionality of key packages."""
     print("\n🔧 Testing basic functionality...")
 

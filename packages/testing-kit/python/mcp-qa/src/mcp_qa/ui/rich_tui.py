@@ -19,7 +19,6 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     from rich.box import ROUNDED
     from rich.console import Console, Group
-    from rich.layout import Layout
     from rich.live import Live
     from rich.panel import Panel
     from rich.progress import (

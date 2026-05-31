@@ -60,7 +60,7 @@ class QualityCoverageAnalyzer:
                 "current_rules": {"E", "F", "W", "Q"},
                 "recommended_rules": {"E", "F", "W", "Q", "I"},
                 "files_covered": self.py_files,
-                "gap": {"I"  # missing import sorting}
+                "gap": {"I"},  # missing import sorting
             },
             "Code Structure": {
                 "current_rules": {"C4", "SIM", "RET", "SLF"},

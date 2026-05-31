@@ -68,7 +68,7 @@ def test_imports():
     """
     print("Testing imports...")
     try:
-        from mcp_qa.reporters import (
+        from mcp_qa.reporters import (  # noqa: F401  (import smoke-test)
             ConsoleReporter,
             DetailedErrorReporter,
             FunctionalityMatrixReporter,

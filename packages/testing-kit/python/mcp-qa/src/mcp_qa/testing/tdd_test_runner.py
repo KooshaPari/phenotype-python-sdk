@@ -11,9 +11,9 @@ from typing import Any, Dict, List, Optional
 
 # Your existing TUI imports
 try:
-    from framework.oauth_progress import OAuthProgressFlow
-    from framework.tui import AtomsTUIApp as TestDashboardApp
-    from framework.tui import run_tui_dashboard
+    from framework.oauth_progress import OAuthProgressFlow  # noqa: F401  (optional TUI dep)
+    from framework.tui import AtomsTUIApp as TestDashboardApp  # noqa: F401
+    from framework.tui import run_tui_dashboard  # noqa: F401
 
     HAS_TUI = True
 except ImportError:

@@ -21,7 +21,6 @@ from pheno_analysis_cli import (
     analyze_test_coverage,
     code_smell_detector,
     advanced_pattern_detector,
-    architectural_pattern_validator,
 )
 
 

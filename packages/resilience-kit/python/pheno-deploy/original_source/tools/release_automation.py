@@ -368,7 +368,7 @@ class ReleaseAutomation:
             self._complete_step(False, "", f"Error updating version files: {e}")
             return False
 
-    def _generate_changelog(self, new_version: str, release_type: str) -> str | None  # noqa: PLR0912, PLR0915:
+    def _generate_changelog(self, new_version: str, release_type: str) -> str | None:  # noqa: PLR0912, PLR0915
         """Generate changelog for the new version."""
         try:
             changelog_file = self.project_root / self.config["changelog_file"]
