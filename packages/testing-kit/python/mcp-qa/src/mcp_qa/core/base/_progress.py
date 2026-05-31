@@ -5,7 +5,7 @@ Provides:
 - ProgressTracker for basic tqdm-based progress
 """
 
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 try:
     from tqdm import tqdm as _tqdm
@@ -17,7 +17,7 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from .test_runner import BaseTestRunner
+    pass
 
 
 class ProgressTracker:

@@ -15,14 +15,13 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
 
 # Add the package to path if running directly
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from pheno_quality_tools.manager import quality_manager
-from pheno_quality_tools.config import get_config, list_configs, create_custom_config
+from pheno_quality_tools.config import get_config, list_configs
 from pheno_quality_tools.core import QualityConfig
 from pheno_quality_tools.importers import QualityReportImporter
 
@@ -58,7 +57,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     # Generate and display summary
     summary = quality_manager.generate_summary(report)
 
-    print(f"\n📊 Quality Analysis Results")
+    print("\n📊 Quality Analysis Results")
     print(f"Project: {summary['project_name']}")
     print(f"Quality Score: {summary['quality_score']:.1f}/100")
     print(f"Quality Status: {summary['quality_status']}")
@@ -193,7 +192,7 @@ def cmd_atlas(args: argparse.Namespace) -> int:
     analyzer = AtlasHealthAnalyzer()
     issues = analyzer.analyze_directory(path)
 
-    print(f"\n📊 Atlas Health Results")
+    print("\n📊 Atlas Health Results")
     print(f"Total Issues: {len(issues)}")
 
     if issues:
@@ -239,7 +238,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         print(f"✅ Report exported to: {output}")
         return 0
     else:
-        print(f"❌ Failed to export report")
+        print("❌ Failed to export report")
         return 1
 
 
@@ -259,7 +258,7 @@ def cmd_import(args: argparse.Namespace) -> int:
     summary = quality_manager.generate_summary(report)
 
     print(f"✅ Report imported from: {args.file}")
-    print(f"\n📊 Report Summary")
+    print("\n📊 Report Summary")
     print(f"Project: {summary['project_name']}")
     print(f"Quality Score: {summary['quality_score']:.1f}/100")
     print(f"Total Issues: {summary['total_issues']}")

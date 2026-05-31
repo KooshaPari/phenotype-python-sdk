@@ -3,7 +3,6 @@ Tests for Pheno Quality CLI.
 """
 
 import pytest
-from pathlib import Path
 from pheno_quality.core import (
     QualityIssue,
     QualityMetrics,
@@ -139,7 +138,6 @@ class TestConfiguration:
 
     def test_create_custom_config(self):
         """Test creating custom config."""
-        base = get_config("default")
         custom = create_custom_config("default", max_workers=8)
         assert custom.max_workers == 8
 

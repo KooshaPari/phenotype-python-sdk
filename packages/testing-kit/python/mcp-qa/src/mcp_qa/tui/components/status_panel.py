@@ -8,7 +8,6 @@ from typing import Any, Dict, List
 try:
     from rich.panel import Panel
     from rich.table import Table
-    from rich.text import Text
     from textual.widgets import Static
 
     HAS_TEXTUAL = True

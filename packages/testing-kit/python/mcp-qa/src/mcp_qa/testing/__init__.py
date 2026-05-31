@@ -32,6 +32,16 @@ from .unified_runner import (
     run_mcp_tests,
 )
 
+# Logging Configuration
+from .logging_config import (
+    QuietLogger,
+    configure_test_logging,
+    get_test_logger,
+    print_test_header,
+    print_test_summary,
+    suppress_deprecation_warnings,
+)
+
 __all__ = [
     # HTTP Client & Fixtures
     "HTTPMCPClient",
@@ -55,26 +65,11 @@ __all__ = [
     "LiveProgressObserver",
     "create_observable_client",
     "observe_calls",
+    # Logging Configuration
+    "configure_test_logging",
+    "suppress_deprecation_warnings",
+    "QuietLogger",
+    "get_test_logger",
+    "print_test_header",
+    "print_test_summary",
 ]
-
-# Logging Configuration
-from .logging_config import (
-    QuietLogger,
-    configure_test_logging,
-    get_test_logger,
-    print_test_header,
-    print_test_summary,
-    suppress_deprecation_warnings,
-)
-
-# Add to __all__
-__all__.extend(
-    [
-        "configure_test_logging",
-        "suppress_deprecation_warnings",
-        "QuietLogger",
-        "get_test_logger",
-        "print_test_header",
-        "print_test_summary",
-    ]
-)

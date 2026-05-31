@@ -19,13 +19,29 @@ jobs:
           python-version: "3.12"
       - name: Install tools
         run: pip install 'ruff>=0.15,<0.16' pytest
-      - name: Ruff (Python trees)
+      - name: Ruff smoke (pyflakes + syntax)
+        # Smoke check: pyflakes (F) catches real defects — undefined names,
+        # unused imports, broken star-imports — plus E9 syntax errors. Stylistic
+        # rule sets (D/N/UP/...) are owned by each absorbed package's own ruff
+        # config and are not gated by the monorepo smoke check.
+        # mcp-kit ships a Poetry umbrella stub with no python/ tree (packages =
+        # []), so it is intentionally absent here (see root pyproject excludes).
+        # Legacy *_old.py modules are excluded; they reference removed adapters.
+        # original_source/ holds an archival pre-absorption snapshot (not an
+        # installable package and not referenced by any pyproject), so it is
+        # excluded from the gate alongside templates/tests.
         run: |
           ruff check \
             packages/auth-kit/python \
-            packages/mcp-kit/python \
             packages/testing-kit/python \
             packages/resilience-kit/python \
-            --ignore E501
+            --select F,E9 --ignore E501 \
+            --exclude '*_old.py' \
+            --exclude 'original_source'
       - name: Byte-compile Python sources
-        run: python -m compileall -q packages/auth-kit/python packages/mcp-kit/python packages/testing-kit/python packages/resilience-kit/python
+        # -x skips the archival snapshot and legacy modules excluded above.
+        run: |
+          python -m compileall -q -x '(original_source|_old\.py)' \
+            packages/auth-kit/python \
+            packages/testing-kit/python \
+            packages/resilience-kit/python

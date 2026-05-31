@@ -2,14 +2,13 @@
 Pheno Quality CLI - CLI entry points for quality analysis.
 """
 
-import sys
 from pathlib import Path
 from typing import Optional
 
 import typer
 from typing_extensions import Annotated
 
-from pheno_quality.config import get_config, list_configs
+from pheno_quality.config import get_config
 from pheno_quality.manager import quality_manager
 
 app = typer.Typer(help="Pheno Quality CLI - Code quality analysis tool")
@@ -75,7 +74,7 @@ def quality_check(
 
     if summary:
         # Show summary only
-        typer.echo(f"\n📊 Quality Analysis Summary")
+        typer.echo("\n📊 Quality Analysis Summary")
         typer.echo(f"Project: {result_summary['project_name']}")
         typer.echo(f"Quality Score: {result_summary['quality_score']:.1f}/100")
         typer.echo(f"Total Issues: {result_summary['total_issues']}")
@@ -88,7 +87,7 @@ def quality_check(
                 typer.echo(f"  {rec}")
     else:
         # Show detailed results
-        typer.echo(f"\n📊 Quality Analysis Results")
+        typer.echo("\n📊 Quality Analysis Results")
         typer.echo(f"Quality Score: {result_summary['quality_score']:.1f}/100")
         typer.echo(f"Total Issues: {result_summary['total_issues']}")
 
@@ -193,7 +192,7 @@ def quality_import(
 
     report = quality_manager.import_report(file)
     if report:
-        typer.echo(f"✅ Report imported successfully")
+        typer.echo("✅ Report imported successfully")
         typer.echo(f"Project: {report.project_name}")
         typer.echo(f"Total Issues: {report.metrics.total_issues}")
         typer.echo(f"Quality Score: {report.metrics.quality_score:.1f}/100")

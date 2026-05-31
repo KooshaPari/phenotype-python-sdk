@@ -5,9 +5,12 @@ import hashlib
 import json
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from utils.logging_setup import get_logger
+
+if TYPE_CHECKING:
+    from .optimization_pool import PooledMCPClient
 
 logger = get_logger(__name__)
 

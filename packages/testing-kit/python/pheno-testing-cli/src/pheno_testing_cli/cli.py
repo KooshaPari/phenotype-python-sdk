@@ -217,7 +217,6 @@ def run_security_command(args: argparse.Namespace) -> int:
             ComplianceChecker,
             DynamicApplicationSecurityTester,
             PenetrationTester,
-            SecurityTestResult,
         )
 
         print(f"🔒 Running security tests on: {args.path}")
@@ -494,7 +493,7 @@ def run_parallel_command(args: argparse.Namespace) -> int:
             speedup = sequential_time / parallel_time if parallel_time > 0 else 1.0
 
             print(f"\n{'=' * 50}")
-            print(f"📊 BENCHMARK RESULTS")
+            print("📊 BENCHMARK RESULTS")
             print(f"{'=' * 50}")
             print(f"Sequential: {sequential_time:.2f}s")
             print(f"Parallel:   {parallel_time:.2f}s")
@@ -507,7 +506,7 @@ def run_parallel_command(args: argparse.Namespace) -> int:
             total_tiers = len(results)
 
             print(f"\n{'=' * 50}")
-            print(f"🎯 PARALLEL TEST SUMMARY")
+            print("🎯 PARALLEL TEST SUMMARY")
             print(f"{'=' * 50}")
             print(f"Workers: {args.workers}")
             print(f"Success: {total_success}/{total_tiers}")

@@ -6,7 +6,6 @@ Replaces the phenoSDK src.shared.logging dependency for standalone use.
 import logging
 import sys
 from functools import lru_cache
-from typing import Any
 
 
 def get_logger(name: str | None = None, level: int = logging.INFO) -> logging.Logger:

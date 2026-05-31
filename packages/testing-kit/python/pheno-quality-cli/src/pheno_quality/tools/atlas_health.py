@@ -203,7 +203,6 @@ class AtlasHealthAnalyzer(QualityAnalyzer):
         issues = []
 
         functions = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-        function_names = {func.name for func in functions}
 
         calls = []
         for node in ast.walk(tree):
