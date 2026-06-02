@@ -1,3 +1,6 @@
+> **Work state:** ACTIVE · **Progress:** `████████░░ 80%`
+> Consolidated Python SDK (6 kits); de-nested pheno-kits; next: publish to PyPI per ADR-011. · updated 2026-06-02
+
 # phenotype-python-sdk
 
 Monorepo of Phenotype org Python (and polyglot) SDK kits, consolidated from standalone kit repositories.
