@@ -2684,12 +2684,12 @@ provides-extras = ["dev"]
 [[package]]
 name = "pheno-cli-builder"
 version = "0.1.0"
-source = { editable = "packages/pheno-kits/libs/python/pheno-cli-builder" }
+source = { editable = "packages/pheno-cli-builder" }
 
 [[package]]
 name = "pheno-cli-kit"
 version = "0.1.0"
-source = { editable = "packages/pheno-kits/libs/python/pheno-cli-kit" }
+source = { editable = "packages/pheno-cli-kit" }
 dependencies = [
     { name = "pydantic" },
 ]
@@ -2906,7 +2906,7 @@ provides-extras = ["dev"]
 [[package]]
 name = "phenotype-config"
 version = "0.1.0"
-source = { editable = "packages/pheno-kits/configs/app/phenotype-config" }
+source = { editable = "packages/phenotype-config" }
 dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -2930,7 +2930,7 @@ provides-extras = ["dev"]
 [[package]]
 name = "phenotype-id"
 version = "0.1.0"
-source = { editable = "packages/pheno-kits/libs/python/phenotype-id" }
+source = { editable = "packages/phenotype-id" }
 
 [package.optional-dependencies]
 dev = [
@@ -2948,7 +2948,7 @@ provides-extras = ["dev"]
 [[package]]
 name = "phenotype-logging"
 version = "0.1.0"
-source = { editable = "packages/pheno-kits/libs/python/phenotype-logging" }
+source = { editable = "packages/phenotype-logging" }
 dependencies = [
     { name = "structlog" },
 ]
@@ -2970,7 +2970,7 @@ provides-extras = ["dev"]
 [[package]]
 name = "phenotype-py-kit"
 version = "0.1.0"
-source = { editable = "packages/pheno-kits/libs/python/phenotype-py-kit" }
+source = { editable = "packages/phenotype-py-kit" }
 dependencies = [
     { name = "fastapi" },
     { name = "pydantic" },
@@ -3005,7 +3005,7 @@ source = { virtual = "." }
 [[package]]
 name = "phenotype-testing"
 version = "0.1.0"
-source = { editable = "packages/pheno-kits/libs/python/phenotype-testing" }
+source = { editable = "packages/phenotype-testing" }
 dependencies = [
     { name = "phenotype-config" },
     { name = "pytest" },
@@ -3018,7 +3018,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "phenotype-config", editable = "packages/pheno-kits/configs/app/phenotype-config" },
+    { name = "phenotype-config", editable = "packages/phenotype-config" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0" },
 ]

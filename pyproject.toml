@@ -8,7 +8,15 @@
 #   - packages/observability-kit   (ObservabilityKit)
 #   - packages/resilience-kit      (ResilienceKit)
 #   - packages/testing-kit         (TestingKit)
-#   - packages/pheno-kits          (PhenoKits — collection/index + libs)
+#
+# De-nested 2026-06-02: the PhenoKits org-governance/artifact umbrella was
+# extracted out of this SDK (it is not a Python SDK kit). Its 7 publishable
+# Python packages were hoisted up to packages/ directly:
+#   pheno-cli-builder, pheno-cli-kit, phenotype-id, phenotype-logging,
+#   phenotype-py-kit, phenotype-testing, phenotype-config
+# The umbrella remainder (Rust workspace stub, hexagon docs, governance,
+# libs/{go,typescript}, schemas, templates) was removed; preserved as an
+# extraction bundle pending its own home (escalated to domain steward).
 #
 # Python publishable sub-projects live under each kit's python/ tree.
 # Namespace convention: phenotype.<kit>.* (see each package's own pyproject).
@@ -66,15 +74,14 @@ members = [
   'packages/testing-kit/python/pheno-quality-tools',
   'packages/testing-kit/python/pheno-testing-cli',
   'packages/testing-kit/python/qa-kit',
-  'packages/pheno-kits/libs/python/pheno-cli-builder',
-  'packages/pheno-kits/libs/python/pheno-cli-kit',
-  # phenokit-config-kit excluded: its [all] extra depends on markdownlint-cli
-  # (an npm package not published to PyPI). Absorbed; needs upstream fix.
-  'packages/pheno-kits/libs/python/phenotype-id',
-  'packages/pheno-kits/libs/python/phenotype-logging',
-  'packages/pheno-kits/libs/python/phenotype-py-kit',
-  'packages/pheno-kits/libs/python/phenotype-testing',
-  'packages/pheno-kits/configs/app/phenotype-config',
+  # Hoisted out of the de-nested pheno-kits umbrella (2026-06-02):
+  'packages/pheno-cli-builder',
+  'packages/pheno-cli-kit',
+  'packages/phenotype-id',
+  'packages/phenotype-logging',
+  'packages/phenotype-py-kit',
+  'packages/phenotype-testing',
+  'packages/phenotype-config',
 ]
 exclude = [
   'packages/auth-kit',
@@ -83,6 +90,4 @@ exclude = [
   'packages/**/tests/**',
   'packages/**/integrationtests/**',
   'packages/resilience-kit/python/deploy-kit',
-  'packages/pheno-kits/libs/python/phenokit-config-kit',
-  'packages/pheno-kits/hexagon/**',
 ]
