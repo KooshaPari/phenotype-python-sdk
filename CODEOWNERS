@@ -1,1 +1,19 @@
-* @KooshaPari
+# Default owners for everything in the repo.
+*							@KooshaPari
+
+# Kits and packages
+/packages/mcp-kit/			@KooshaPari
+/packages/testing-kit/		@KooshaPari
+/packages/auth-kit/			@KooshaPari
+/packages/resilience-kit/	@KooshaPari
+/packages/observability-kit/	@KooshaPari
+/packages/data-kit/			@KooshaPari
+
+# Governance
+/CLAUDE.md					@KooshaPari
+/AGENTS.md					@KooshaPari
+/CODEOWNERS					@KooshaPari
+/SECURITY.md				@KooshaPari
+/CONTRIBUTING.md			@KooshaPari
+/.editorconfig				@KooshaPari
+/justfile					@KooshaPari
