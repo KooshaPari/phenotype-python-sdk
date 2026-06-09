@@ -1,5 +1,13 @@
-> **Work state:** ACTIVE · **Progress:** `████████░░ 80%`
-> Consolidated Python SDK (6 kits); de-nested pheno-kits; next: publish to PyPI per ADR-011. · updated 2026-06-02
+## Work State
+
+| Field | Value |
+|---|---|
+| Last commit | 2026-06-02 |
+| Open issues | 1 |
+| Open PRs | 1 |
+| Focus | Python SDK monorepo (ADR-011) |
+
+Progress: ████████░░ 80%
 
 # phenotype-python-sdk
 
