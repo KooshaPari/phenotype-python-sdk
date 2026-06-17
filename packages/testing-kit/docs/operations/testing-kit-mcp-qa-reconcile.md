@@ -1,13 +1,22 @@
-# TestingKit mcp-qa reconcile (2026-06-17)
+# TestingKit reconcile (2026-06-17)
 
-Archived source: `KooshaPari/TestingKit` (`python/mcp-qa/`).
-Canonical home: `phenotype-python-sdk` (`packages/testing-kit/python/mcp-qa/`).
+Archived source: `KooshaPari/TestingKit`.
+Canonical home: `phenotype-python-sdk` (`packages/testing-kit/`).
 
-## Reconcile action
+## Blob compare (gh api, 2026-06-17)
 
-Synced **23 Python modules** from the archived TestingKit tree into the SDK. GitHub blob SHA comparison (`gh api` on `main`) confirmed archive and SDK diverged on these paths; archive is source of truth for the absorption.
+Full-tree comparison between `KooshaPari/TestingKit` and `packages/testing-kit/` on SDK `main` found **34 divergent blobs** (387/422 archive paths matched). Breakdown:
 
-## Files synced from archive
+| Category | Count | Action |
+|----------|------:|--------|
+| `python/mcp-qa/` | 23 | Synced from archive (this PR) |
+| Other Python packages | 11 | SDK canonical — post-absorption fixes, no sync |
+| SDK-only artifacts | 73 | `__pycache__/*.pyc` and other SDK-local files (ignored) |
+| Archive-only | 1 | Absorbed elsewhere or obsolete |
+
+## mcp-qa: synced from archive (23 files)
+
+Archive is source of truth for absorption. These modules were copied into the SDK on branch `fix/testing-kit-mcp-qa-reconcile`; post-sync blob compare confirms **250/250** `python/mcp-qa/` blobs match.
 
 - `src/mcp_qa/collaboration/coordinator.py`
 - `src/mcp_qa/collaboration/models.py`
@@ -33,7 +42,21 @@ Synced **23 Python modules** from the archived TestingKit tree into the SDK. Git
 - `src/mcp_qa/tui/components/status_panel.py`
 - `src/mcp_qa/ui/rich_tui.py`
 
-All other `mcp-qa` Python files already matched byte-for-byte between archive and SDK.
+## Other packages: SDK canonical (11 files)
+
+These divergences are intentional SDK-side fixes (lint, typing, logging). **Do not sync from archive.**
+
+- `python/pheno-analysis-cli/src/pheno_analysis_cli/cli.py`
+- `python/pheno-quality-cli/src/pheno_quality/cli/main.py`
+- `python/pheno-quality-cli/src/pheno_quality/tools/atlas_health.py`
+- `python/pheno-quality-cli/src/pheno_quality/tools/code_smell_detector.py`
+- `python/pheno-quality-cli/tests/test_quality.py`
+- `python/pheno-quality-tools/src/pheno_quality_tools/cli.py`
+- `python/pheno-quality-tools/src/pheno_quality_tools/export_import.py`
+- `python/pheno-quality-tools/src/pheno_quality_tools/integration.py`
+- `python/pheno-testing-cli/src/pheno_testing_cli/cli.py`
+- `python/pheno-testing-cli/src/pheno_testing_cli/package_tester.py`
+- `python/qa-kit/qa_kit_logging.py`
 
 ## Archive retirement
 
