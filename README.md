@@ -34,6 +34,10 @@ Progress: ████████░░ 80%
 
 Monorepo of Phenotype org Python (and polyglot) SDK kits, consolidated from standalone kit repositories.
 
+## Governance
+
+Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](charter.md). Role: **`py-sdk-index`** per [phenotype-registry DOMAIN_ROLES](https://github.com/KooshaPari/phenotype-registry/blob/main/DOMAIN_ROLES.md).
+
 ## Workspace kits
 
 | Kit | Path | Role |
