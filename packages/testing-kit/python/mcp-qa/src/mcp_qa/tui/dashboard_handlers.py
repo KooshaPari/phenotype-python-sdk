@@ -15,8 +15,10 @@ from textual.widgets import DataTable, RichLog
 from .dashboard_modals import ExportModal, FilterModal, HelpModal
 from .dashboard_websocket import WebSocketBroadcaster
 from .dashboard_widgets import (
+    LiveMonitorWidget,
     MetricsWidget,
     TeamVisibilityWidget,
+    TestProgressWidget,
     TestSummaryWidget,
 )
 

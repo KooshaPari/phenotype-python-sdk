@@ -9,16 +9,22 @@ This integrates the existing TUI with the new TDD session OAuth system:
 """
 
 import asyncio
+import json
+import os
+import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 try:
+    from rich.align import Align
     from rich.console import Console
+    from rich.layout import Layout
     from rich.live import Live
     from rich.panel import Panel
     from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
     from rich.table import Table
+    from rich.text import Text
     HAS_RICH = True
 except ImportError:
     HAS_RICH = False
@@ -51,6 +57,8 @@ class TDDTestDashboard:
 
     async def setup_oauth_session(self):
         """Setup session OAuth with rich progress display."""
+        layout = Layout()
+
         # Create OAuth status panel
         oauth_panel = Panel(
             "[bold blue]🔐 Setting up Session-Scoped OAuth...[/bold blue]",
@@ -155,200 +163,4 @@ class TDDTestDashboard:
                 await self.show_oauth_status()
             else:
                 self.console.print("[red]Invalid option. Press Enter to continue.[/red]")
-                input()
-    
-    def create_dashboard_layout(self) -> Panel:
-        """Create the main dashboard layout."""
-        # OAuth Status Section
-        oauth_status = self.get_oauth_status_display()
-        
-        # Test Results Section
-        test_results = self.get_test_results_display()
-        
-        # Combine sections
-        content = f"""{oauth_status}
-
-{test_results}"""
-        
-        return Panel(
-            content,
-            title="[bold green]🧪 TDD Test Dashboard with Session OAuth[/bold green]",
-            border_style="green"
-        )
-    
-    def get_oauth_status_display(self) -> str:
-        """Get OAuth status display string."""
-        if not self.credentials:
-            return "[red]❌ No OAuth credentials[/red]"
-        
-        status_color = "green" if self.credentials.is_valid() else "red"
-        status_icon = "✅" if self.credentials.is_valid() else "❌"
-        
-        return f"""[bold]{status_icon} OAuth Status[/bold]
-Provider: [{status_color}]{self.credentials.provider}[/{status_color}]
-Expires: [{status_color}]{self.credentials.expires_at}[/{status_color}]
-User ID: [cyan]{self.credentials.user_id or 'Unknown'}[/cyan]"""
-    
-    def get_test_results_display(self) -> str:
-        """Get test results display string."""
-        if not self.test_results:
-            return "[dim]No tests run yet[/dim]"
-        
-        # Show last few test results
-        recent_results = self.test_results[-5:]
-        result_lines = []
-        
-        for result in recent_results:
-            status_icon = "✅" if result.get("passed", False) else "❌"
-            test_name = result.get("name", "Unknown")
-            duration = result.get("duration", 0)
-            result_lines.append(f"{status_icon} {test_name} ({duration:.2f}s)")
-        
-        return "\n".join(["[bold]📊 Recent Test Results[/bold]"] + result_lines)
-    
-    async def run_all_tests(self):
-        """Run all tests with progress display."""
-        await self.run_pytest_with_progress(["tests/", "-v"], "Running all tests...")
-    
-    async def run_unit_tests(self):
-        """Run unit tests only."""
-        await self.run_pytest_with_progress(
-            ["tests/unit/", "-m", "unit", "-v"], 
-            "Running unit tests..."
-        )
-    
-    async def run_integration_tests(self):
-        """Run integration tests only."""
-        await self.run_pytest_with_progress(
-            ["tests/integration/", "-m", "integration", "-v"],
-            "Running integration tests..."
-        )
-    
-    async def test_specific_tool(self):
-        """Test a specific tool."""
-        tool_name = input("\n🔧 Enter tool name (e.g., workspace, entity): ").strip()
-        if not tool_name:
-            return
-        
-        test_paths = [
-            f"tests/unit/tools/test_{tool_name}_tool.py",
-            f"tests/integration/test_{tool_name}_integration.py"
-        ]
-        
-        existing_paths = [p for p in test_paths if Path(p).exists()]
-        
-        if not existing_paths:
-            self.console.print(f"[red]❌ No tests found for tool: {tool_name}[/red]")
-            input("Press Enter to continue...")
-            return
-        
-        await self.run_pytest_with_progress(
-            existing_paths + ["-v"],
-            f"Testing {tool_name} tool..."
-        )
-    
-    async def run_custom_filter(self):
-        """Run tests with custom filter."""
-        filter_expr = input("\n🔍 Enter test filter (pytest -k expression): ").strip()
-        if not filter_expr:
-            return
-        
-        await self.run_pytest_with_progress(
-            ["tests/", "-k", filter_expr, "-v"],
-            f"Running tests matching: {filter_expr}"
-        )
-    
-    async def show_oauth_status(self):
-        """Show detailed OAuth status."""
-        if not self.credentials:
-            self.console.print("[red]❌ No OAuth credentials available[/red]")
-            return
-        
-        # Refresh credentials status
-        await self.auth_broker._load_cached_credentials()
-        
-        status_table = Table(title="OAuth Credential Details")
-        status_table.add_column("Property", style="cyan")
-        status_table.add_column("Value", style="green")
-        
-        status_table.add_row("Provider", self.credentials.provider)
-        status_table.add_row("Token (last 8 chars)", f"...{self.credentials.access_token[-8:]}")
-        status_table.add_row("Valid", "✅ Yes" if self.credentials.is_valid() else "❌ No")
-        status_table.add_row("Expires At", str(self.credentials.expires_at))
-        status_table.add_row("Base URL", self.credentials.base_url)
-        status_table.add_row("User ID", self.credentials.user_id or "Unknown")
-        
-        self.console.print(status_table)
-        input("\nPress Enter to continue...")
-    
-    async def run_pytest_with_progress(self, pytest_args: List[str], description: str):
-        """Run pytest with rich progress display."""
-        cmd = ["python", "-m", "pytest"] + pytest_args
-        
-        self.console.print(f"\n[bold green]{description}[/bold green]")
-        self.console.print(f"Command: [cyan]{' '.join(cmd)}[/cyan]\n")
-        
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(),
-            TimeElapsedColumn(),
-            console=self.console
-        ) as progress:
-            task = progress.add_task(description, total=None)
-            
-            # Run pytest
-            process = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.STDOUT,
-                cwd=Path(__file__).parent.parent.parent
-            )
-            
-            output_lines = []
-            while True:
-                line = await process.stdout.readline()
-                if not line:
-                    break
-                
-                line_str = line.decode().strip()
-                if line_str:
-                    output_lines.append(line_str)
-                    # Update progress with current test
-                    if "::" in line_str and ("PASSED" in line_str or "FAILED" in line_str):
-                        test_name = line_str.split("::")[1].split(" ")[0]
-                        progress.update(task, description=f"Running: {test_name}")
-            
-            await process.wait()
-            
-            # Show results
-            success = process.returncode == 0
-            result_color = "green" if success else "red"
-            result_icon = "✅" if success else "❌"
-            
-            progress.update(task, description=f"{result_icon} {'Passed' if success else 'Failed'}")
-            
-            # Store result
-            self.test_results.append({
-                "name": description,
-                "passed": success,
-                "duration": 0,  # Could calculate from timestamps
-                "timestamp": datetime.now()
-            })
-        
-        # Show summary
-        self.console.print(f"\n[{result_color}]{result_icon} Test run {'completed successfully' if success else 'failed'}[/{result_color}]")
-        
-        # Show last few lines of output
-        if output_lines:
-            self.console.print("\n[bold]Last few lines of output:[/bold]")
-            for line in output_lines[-10:]:
-                self.console.print(f"  {line}")
-        
-        input("\nPress Enter to continue...")
-
-
-async def run_tdd_dashboard(auth_broker: AuthSessionBroker):
-    """Run the TDD test dashboard."""
-    dashboard = TDDTestDashboard(auth_broker)
-    await dashboard.setup_and_run()
+                input()\n    \n    def create_dashboard_layout(self) -> Panel:\n        \"\"\"Create the main dashboard layout.\"\"\"\n        # OAuth Status Section\n        oauth_status = self.get_oauth_status_display()\n        \n        # Test Results Section\n        test_results = self.get_test_results_display()\n        \n        # Combine sections\n        content = f\"\"\"{oauth_status}\n\n{test_results}\"\"\"\n        \n        return Panel(\n            content,\n            title=\"[bold green]🧪 TDD Test Dashboard with Session OAuth[/bold green]\",\n            border_style=\"green\"\n        )\n    \n    def get_oauth_status_display(self) -> str:\n        \"\"\"Get OAuth status display string.\"\"\"\n        if not self.credentials:\n            return \"[red]❌ No OAuth credentials[/red]\"\n        \n        status_color = \"green\" if self.credentials.is_valid() else \"red\"\n        status_icon = \"✅\" if self.credentials.is_valid() else \"❌\"\n        \n        return f\"\"\"[bold]{status_icon} OAuth Status[/bold]\nProvider: [{status_color}]{self.credentials.provider}[/{status_color}]\nExpires: [{status_color}]{self.credentials.expires_at}[/{status_color}]\nUser ID: [cyan]{self.credentials.user_id or 'Unknown'}[/cyan]\"\"\"\n    \n    def get_test_results_display(self) -> str:\n        \"\"\"Get test results display string.\"\"\"\n        if not self.test_results:\n            return \"[dim]No tests run yet[/dim]\"\n        \n        # Show last few test results\n        recent_results = self.test_results[-5:]\n        result_lines = []\n        \n        for result in recent_results:\n            status_icon = \"✅\" if result.get(\"passed\", False) else \"❌\"\n            test_name = result.get(\"name\", \"Unknown\")\n            duration = result.get(\"duration\", 0)\n            result_lines.append(f\"{status_icon} {test_name} ({duration:.2f}s)\")\n        \n        return \"\\n\".join([\"[bold]📊 Recent Test Results[/bold]\"] + result_lines)\n    \n    async def run_all_tests(self):\n        \"\"\"Run all tests with progress display.\"\"\"\n        await self.run_pytest_with_progress([\"tests/\", \"-v\"], \"Running all tests...\")\n    \n    async def run_unit_tests(self):\n        \"\"\"Run unit tests only.\"\"\"\n        await self.run_pytest_with_progress(\n            [\"tests/unit/\", \"-m\", \"unit\", \"-v\"], \n            \"Running unit tests...\"\n        )\n    \n    async def run_integration_tests(self):\n        \"\"\"Run integration tests only.\"\"\"\n        await self.run_pytest_with_progress(\n            [\"tests/integration/\", \"-m\", \"integration\", \"-v\"],\n            \"Running integration tests...\"\n        )\n    \n    async def test_specific_tool(self):\n        \"\"\"Test a specific tool.\"\"\"\n        tool_name = input(\"\\n🔧 Enter tool name (e.g., workspace, entity): \").strip()\n        if not tool_name:\n            return\n        \n        test_paths = [\n            f\"tests/unit/tools/test_{tool_name}_tool.py\",\n            f\"tests/integration/test_{tool_name}_integration.py\"\n        ]\n        \n        existing_paths = [p for p in test_paths if Path(p).exists()]\n        \n        if not existing_paths:\n            self.console.print(f\"[red]❌ No tests found for tool: {tool_name}[/red]\")\n            input(\"Press Enter to continue...\")\n            return\n        \n        await self.run_pytest_with_progress(\n            existing_paths + [\"-v\"],\n            f\"Testing {tool_name} tool...\"\n        )\n    \n    async def run_custom_filter(self):\n        \"\"\"Run tests with custom filter.\"\"\"\n        filter_expr = input(\"\\n🔍 Enter test filter (pytest -k expression): \").strip()\n        if not filter_expr:\n            return\n        \n        await self.run_pytest_with_progress(\n            [\"tests/\", \"-k\", filter_expr, \"-v\"],\n            f\"Running tests matching: {filter_expr}\"\n        )\n    \n    async def show_oauth_status(self):\n        \"\"\"Show detailed OAuth status.\"\"\"\n        if not self.credentials:\n            self.console.print(\"[red]❌ No OAuth credentials available[/red]\")\n            return\n        \n        # Refresh credentials status\n        await self.auth_broker._load_cached_credentials()\n        \n        status_table = Table(title=\"OAuth Credential Details\")\n        status_table.add_column(\"Property\", style=\"cyan\")\n        status_table.add_column(\"Value\", style=\"green\")\n        \n        status_table.add_row(\"Provider\", self.credentials.provider)\n        status_table.add_row(\"Token (last 8 chars)\", f\"...{self.credentials.access_token[-8:]}\")\n        status_table.add_row(\"Valid\", \"✅ Yes\" if self.credentials.is_valid() else \"❌ No\")\n        status_table.add_row(\"Expires At\", str(self.credentials.expires_at))\n        status_table.add_row(\"Base URL\", self.credentials.base_url)\n        status_table.add_row(\"User ID\", self.credentials.user_id or \"Unknown\")\n        \n        self.console.print(status_table)\n        input(\"\\nPress Enter to continue...\")\n    \n    async def run_pytest_with_progress(self, pytest_args: List[str], description: str):\n        \"\"\"Run pytest with rich progress display.\"\"\"\n        cmd = [\"python\", \"-m\", \"pytest\"] + pytest_args\n        \n        self.console.print(f\"\\n[bold green]{description}[/bold green]\")\n        self.console.print(f\"Command: [cyan]{' '.join(cmd)}[/cyan]\\n\")\n        \n        with Progress(\n            SpinnerColumn(),\n            TextColumn(\"[progress.description]{task.description}\"),\n            BarColumn(),\n            TimeElapsedColumn(),\n            console=self.console\n        ) as progress:\n            task = progress.add_task(description, total=None)\n            \n            # Run pytest\n            process = await asyncio.create_subprocess_exec(\n                *cmd,\n                stdout=asyncio.subprocess.PIPE,\n                stderr=asyncio.subprocess.STDOUT,\n                cwd=Path(__file__).parent.parent.parent\n            )\n            \n            output_lines = []\n            while True:\n                line = await process.stdout.readline()\n                if not line:\n                    break\n                \n                line_str = line.decode().strip()\n                if line_str:\n                    output_lines.append(line_str)\n                    # Update progress with current test\n                    if \"::\" in line_str and (\"PASSED\" in line_str or \"FAILED\" in line_str):\n                        test_name = line_str.split(\"::\")[1].split(\" \")[0]\n                        progress.update(task, description=f\"Running: {test_name}\")\n            \n            await process.wait()\n            \n            # Show results\n            success = process.returncode == 0\n            result_color = \"green\" if success else \"red\"\n            result_icon = \"✅\" if success else \"❌\"\n            \n            progress.update(task, description=f\"{result_icon} {'Passed' if success else 'Failed'}\")\n            \n            # Store result\n            self.test_results.append({\n                \"name\": description,\n                \"passed\": success,\n                \"duration\": 0,  # Could calculate from timestamps\n                \"timestamp\": datetime.now()\n            })\n        \n        # Show summary\n        self.console.print(f\"\\n[{result_color}]{result_icon} Test run {'completed successfully' if success else 'failed'}[/{result_color}]\")\n        \n        # Show last few lines of output\n        if output_lines:\n            self.console.print(\"\\n[bold]Last few lines of output:[/bold]\")\n            for line in output_lines[-10:]:\n                self.console.print(f\"  {line}\")\n        \n        input(\"\\nPress Enter to continue...\")\n\n\nasync def run_tdd_dashboard(auth_broker: AuthSessionBroker):\n    \"\"\"Run the TDD test dashboard.\"\"\"\n    dashboard = TDDTestDashboard(auth_broker)\n    await dashboard.setup_and_run()

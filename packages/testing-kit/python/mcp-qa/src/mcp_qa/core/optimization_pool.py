@@ -4,7 +4,7 @@ import asyncio
 import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 import httpx
 

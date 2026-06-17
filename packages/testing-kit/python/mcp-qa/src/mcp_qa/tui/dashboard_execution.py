@@ -8,7 +8,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from textual.widgets import DataTable, RichLog
 
@@ -46,13 +46,11 @@ class TestExecutionMixin:
         summary.running = True
 
         try:
-            from mcp_qa.core.adapters import MCPClientAdapter
-
             from .live_runner import LiveTestRunner
 
             logs.write("[cyan]🔧 Initializing test runner...[/cyan]")
 
-            client_adapter = MCPClientAdapter(self.endpoint)
+            client_adapter = AtomsMCPClientAdapter(self.endpoint)
 
             runner = LiveTestRunner(
                 client_adapter=client_adapter,
