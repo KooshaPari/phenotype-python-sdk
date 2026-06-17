@@ -147,7 +147,7 @@ class AuthSessionBroker:
             from auth_helper import automate_oauth_login_with_retry
 
             # Use a mock OAuth URL for now - in practice this would come from FastMCP
-            oauth_url = os.getenv("TEST_OAUTH_URL", "{}/oauth/authorize".format(os.getenv("MCP_BASE_URL", "http://localhost:8000")))
+            oauth_url = os.getenv("TEST_OAUTH_URL", "{}/oauth/authorize".format(os.getenv("MCP_BASE_URL", "http://localhost:8000"))")
 
             success = await automate_oauth_login_with_retry(
                 oauth_url=oauth_url,

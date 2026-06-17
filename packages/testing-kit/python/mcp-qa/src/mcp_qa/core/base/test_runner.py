@@ -58,7 +58,7 @@ except ImportError:
 
 from ._worker import WorkerContext
 from ._connection import ConnectionPoolManager
-from ._progress import ComprehensiveProgressDisplay
+from ._progress import ProgressTracker, ComprehensiveProgressDisplay
 from ._executor import TestExecutor
 
 

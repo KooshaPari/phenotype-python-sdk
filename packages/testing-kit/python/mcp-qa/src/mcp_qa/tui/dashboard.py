@@ -10,11 +10,15 @@ Production-ready interactive test dashboard with comprehensive features:
 Author: Atoms MCP Framework
 """
 
+import asyncio
+import json
 import logging
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 try:
+    from textual import on, work
     from textual.app import App, ComposeResult
     from textual.widgets import (
         DataTable,
@@ -31,6 +35,7 @@ except ImportError:
 from .dashboard_config import get_default_filters
 from .dashboard_handlers import DashboardActionHandler
 from .dashboard_execution import TestExecutionMixin
+from .dashboard_modals import ExportModal, FilterModal, HelpModal
 from .dashboard_websocket import WebSocketBroadcaster
 from .dashboard_widgets import (
     LiveMonitorWidget,
@@ -202,10 +207,8 @@ class TestDashboardApp(App, DashboardActionHandler, TestExecutionMixin):
         try:
             from fastmcp import Client
 
-            from mcp_qa.core.adapters import MCPClientAdapter
-
             client = Client(self.endpoint)
-            self.client_adapter = MCPClientAdapter(client)
+            self.client_adapter = AtomsMCPClientAdapter(client)
             server_status = self.query_one("#server-status", ServerStatusWidget)
             server_status.client_adapter = self.client_adapter
             if self.client_adapter:

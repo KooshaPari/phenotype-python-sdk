@@ -87,10 +87,11 @@ except ImportError:
 try:
     from mcp_qa.core import MCPClientAdapter
 except ImportError:
-    # Fallback to project-specific adapter.
-    # The original project-specific adapter (AtomsMCPClientAdapter) is not part
-    # of this SDK; downstream projects may inject their own MCPClientAdapter.
-    MCPClientAdapter = None
+    # Fallback to project-specific adapter
+    try:
+        # AtomsMCPClientAdapter is project-specific - import from your project instead as MCPClientAdapter
+    except ImportError:
+        MCPClientAdapter = None
 
 # TUI integration (optional)
 try:
