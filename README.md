@@ -19,20 +19,27 @@
 > human operator. Bug reports and contributions are still welcome, but please
 > expect AI-generated code, comments, and documentation throughout.
 <!-- AI-DD-META:END -->
+
+> **Boundary disposition (Block-C, 2026-06-17):** This repo is the canonical **`py-sdk-index`**
+> workspace — Python facades for absorbed fleet kits live here. Rust/Go cores belong to
+> domain role owners (PhenoObservability, TestingKit, Authvault, PhenoFastMCP, …).
+> See [`docs/boundary/DISPOSITION.md`](docs/boundary/DISPOSITION.md) · [`BOUNDARY.md`](BOUNDARY.md) · [`STATUS.md`](STATUS.md).
+
 ## Work State
 
 | Field | Value |
 |---|---|
-| Last commit | 2026-06-02 |
+| Last commit | 2026-06-17 |
 | Open issues | 1 |
 | Open PRs | 1 |
-| Focus | Python SDK monorepo (ADR-011) |
+| Focus | Block-C boundary disposition + uv workspace hygiene |
 
 Progress: ████████░░ 80%
 
 # phenotype-python-sdk
 
-Monorepo of Phenotype org Python (and polyglot) SDK kits, consolidated from standalone kit repositories.
+Monorepo of Phenotype org **Python SDK facades**, consolidated from standalone kit repositories.
+Polyglot trees inside kit subtrees are absorption staging — see [BOUNDARY.md](BOUNDARY.md).
 
 ## Governance
 
@@ -40,17 +47,32 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 
 ## Workspace kits
 
-| Kit | Path | Role |
-|-----|------|------|
-| **mcp-kit** | `packages/mcp-kit` | Model Context Protocol tooling (Python, Rust, Go) |
-| **testing-kit** | `packages/testing-kit` | QA, quality CLI, analysis, and test harnesses |
-| **auth-kit** | `packages/auth-kit` | Authentication and security helpers |
-| **resilience-kit** | `packages/resilience-kit` | Deploy, CI/CD, and resilience utilities |
+| Kit | Path | Role extra | Notes |
+|-----|------|------------|-------|
+| **observability-kit** | `packages/observability-kit` | `[observe]` | Python facade; Rust → PhenoObservability |
+| **testing-kit** | `packages/testing-kit` | `[test]` | mcp-qa reconciled; Rust → TestingKit |
+| **resilience-kit** | `packages/resilience-kit` | `[resilience]` | deploy-kit excluded from uv pending dep fix |
+| **data-kit** | `packages/data-kit` | — | `db_kit` uv member |
+| **auth-kit** | `packages/auth-kit` | `[connect]` | Consumer repoint pending (Tracera, thegent) |
+| **mcp-kit** | `packages/mcp-kit` | `[connect]` | Thin Py edge; framework → PhenoFastMCP |
+
+### Hoisted publishables (from PhenoKits de-nest)
+
+| Package | Path |
+|---------|------|
+| phenotype-config | `packages/phenotype-config` |
+| phenotype-logging | `packages/phenotype-logging` |
+| phenotype-id | `packages/phenotype-id` |
+| phenotype-py-kit | `packages/phenotype-py-kit` |
+| phenotype-testing | `packages/phenotype-testing` |
+| pheno-cli-builder | `packages/pheno-cli-builder` |
+| pheno-cli-kit | `packages/pheno-cli-kit` |
 
 ### Python sub-projects (under kits)
 
 - `packages/testing-kit/python/` — `qa-kit`, `pheno-testing-cli`, `pheno-quality-tools`, `pheno-quality-cli`, `pheno-analysis-cli`, `mcp-qa`
 - `packages/resilience-kit/python/` — `deploy-kit`, `ci-cd-kit`, `pheno-deploy`
+- `packages/observability-kit/python/` — `performance_kit`, logging helpers
 
 See each package’s `README.md` and `pyproject.toml` for install and usage.
 
