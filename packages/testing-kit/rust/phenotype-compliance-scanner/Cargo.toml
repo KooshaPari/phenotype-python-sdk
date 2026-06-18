@@ -23,7 +23,7 @@ tracing = "0.1"
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "sync", "fs", "macros"], optional = true }
 async-trait = { version = "0.1", optional = true }
 futures-util = { version = "0.3", optional = true }
-phenotype-health = { git = "https://github.com/KooshaPari/phenoShared.git", branch = "main", optional = true }
+phenotype-health = { git = "https://github.com/KooshaPari/PhenoObservability", branch = "main", optional = true }
 
 [dev-dependencies]
 tempfile = "3"
