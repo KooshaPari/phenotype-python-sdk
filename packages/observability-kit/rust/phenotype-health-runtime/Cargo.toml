@@ -13,8 +13,8 @@ prometheus = ["dep:metrics", "dep:metrics-exporter-prometheus"]
 background = ["dep:tokio-cron-scheduler"]
 
 [dependencies]
-# Canonical phenotype-health traits (phenoShared) — runtime layers on top
-phenotype-health = { git = "https://github.com/KooshaPari/phenoShared.git", branch = "main" }
+# Canonical phenotype-health traits (PhenoObservability) — runtime layers on top
+phenotype-health = { git = "https://github.com/KooshaPari/PhenoObservability", branch = "main" }
 async-trait = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
