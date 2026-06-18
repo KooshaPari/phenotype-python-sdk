@@ -1,10 +1,17 @@
 # McpKit Python Workspace
 # Uses Poetry for dependency management
+#
+# STATUS: DEPRECATED (2026-06-18, effective 2026-06-22)
+# Authority: ADR-017 (MCP polyrepo boundaries)
+# Source repo KooshaPari/McpKit archived 2026-06-17.
+# Mirror is incomplete (no python/ subdir, no phenotype-mcp-fast).
+# Migration: PhenoFastMCP (py), PhenoFastMCP-rust, PhenoFastMCP-go.
+# See DEPRECATED.md in this directory for the full notice.
 
 [tool.poetry]
 name = "McpKit"
 version = "0.1.0"
-description = "Model Context Protocol"
+description = "Model Context Protocol [DEPRECATED — use PhenoFastMCP/PhenoFastMCP-rust/PhenoFastMCP-go]"
 authors = ["Phenotype Team <team@phenotype.dev>"]
 packages = []
 

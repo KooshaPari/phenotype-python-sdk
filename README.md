@@ -47,6 +47,7 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 
 ## Workspace kits
 
+<<<<<<< HEAD
 | Kit | Path | Role extra | Notes |
 |-----|------|------------|-------|
 | **observability-kit** | `packages/observability-kit` | `[observe]` | Python facade; Rust → PhenoObservability |
@@ -54,7 +55,7 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 | **resilience-kit** | `packages/resilience-kit` | `[resilience]` | deploy-kit excluded from uv pending dep fix |
 | **data-kit** | `packages/data-kit` | — | `db_kit` uv member |
 | **auth-kit** | `packages/auth-kit` | `[connect]` | Consumer repoint pending (Tracera, thegent) |
-| **mcp-kit** | `packages/mcp-kit` | `[connect]` | Thin Py edge; framework → PhenoFastMCP |
+| **mcp-kit** ⚠️ deprecated | `packages/mcp-kit` | `[connect]` | ~~Thin Py edge; framework → PhenoFastMCP~~ **DEPRECATED 2026-06-18** (effective 2026-06-22). Source `KooshaPari/McpKit` archived 2026-06-17; mirror is incomplete. Migrate to [`PhenoFastMCP`](https://github.com/KooshaPari/PhenoFastMCP) / [`PhenoFastMCP-rust`](https://github.com/KooshaPari/PhenoFastMCP-rust) / [`PhenoFastMCP-go`](https://github.com/KooshaPari/PhenoFastMCP-go). See `packages/mcp-kit/DEPRECATED.md`. |
 
 ### Hoisted publishables (from PhenoKits de-nest)
 
@@ -73,6 +74,10 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 - `packages/testing-kit/python/` — `qa-kit`, `pheno-testing-cli`, `pheno-quality-tools`, `pheno-quality-cli`, `pheno-analysis-cli`, `mcp-qa`
 - `packages/resilience-kit/python/` — `deploy-kit`, `ci-cd-kit`, `pheno-deploy`
 - `packages/observability-kit/python/` — `performance_kit`, logging helpers
+
+### Standalone SDK packages
+
+- `packages/agentmcp-hex/` — `agentmcp-hex` (extracted 2026-06-18 from archived `KooshaPari/McpKit`; hexagonal DDD adapter layer; see [`ORIGIN.md`](packages/agentmcp-hex/ORIGIN.md))
 
 See each package’s `README.md` and `pyproject.toml` for install and usage.
 
