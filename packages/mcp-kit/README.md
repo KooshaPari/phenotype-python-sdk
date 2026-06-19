@@ -1,5 +1,17 @@
 # McpKit
 
+> **DEPRECATED (2026-06-18, effective 2026-06-22)** — Per [ADR-017](https://github.com/KooshaPari/PhenoSpecs/blob/main/adrs/017-mcp-polyrepo-boundaries.md). The upstream `KooshaPari/McpKit` source repo was **archived on 2026-06-17** (push returned *"This repository was archived so it is read-only"*); this mirror is **incomplete** (missing `python/`, `phenotype-mcp-fast`, `phenotype-mcp-fast-macros`, `agentora`) and is being retired. Do **not** add new tools here.
+>
+> **Migrate to:**
+> - Python → [`PhenoFastMCP`](https://github.com/KooshaPari/PhenoFastMCP) (vendored from `PrefectHQ/fastmcp`)
+> - Rust   → [`PhenoFastMCP-rust`](https://github.com/KooshaPari/PhenoFastMCP-rust) (vendored from `Dicklesworthstone/fastmcp_rust`)
+> - Go     → [`PhenoFastMCP-go`](https://github.com/KooshaPari/PhenoFastMCP-go) (vendored from `mark3labs/mcp-go`)
+> - Catalog → [`PhenoMCPServers/catalog/registry.yaml`](https://github.com/KooshaPari/PhenoMCPServers)
+>
+> See [`DEPRECATED.md`](./DEPRECATED.md) for the full notice, migration timeline, and registry cross-reference (`phenotype-registry/registry/disposition-index.json` row `id: 28`).
+>
+> Long-term home: `phenotype-python-sdk/mcp` (TBD).
+
 [![Build](https://img.shields.io/github/actions/workflow/status/KooshaPari/McpKit/ci.yml?branch=main&label=build)](https://github.com/KooshaPari/McpKit/actions)
 [![Release](https://img.shields.io/github/v/release/KooshaPari/McpKit?include_prereleases&sort=semver)](https://github.com/KooshaPari/McpKit/releases)
 [![License](https://img.shields.io/github/license/KooshaPari/McpKit)](LICENSE)

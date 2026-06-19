@@ -1,9 +1,24 @@
 # McpKit Workspace Registry
 # Tracks packages and their status
+#
+# STATUS: DEPRECATED (2026-06-18, effective 2026-06-22). See DEPRECATED.md.
+# Authority: ADR-017 (MCP polyrepo boundaries).
+# Source repo KooshaPari/McpKit archived 2026-06-17.
+# Migration: PhenoFastMCP (py), PhenoFastMCP-rust, PhenoFastMCP-go, PhenoMCPServers.
+# This file is a FROZEN SNAPSHOT — do not add new entries.
 
 registry_version: "1.0.0"
 domain: mcpkit
 owner: "team-agents"
+status: deprecated
+deprecated_on: "2026-06-18"
+effective: "2026-06-22"
+authority: "ADR-017"
+migration_targets:
+  python: "KooshaPari/PhenoFastMCP"
+  rust: "KooshaPari/PhenoFastMCP-rust"
+  go: "KooshaPari/PhenoFastMCP-go"
+  catalog: "KooshaPari/PhenoMCPServers"
 
 workspaces:
   rust:
