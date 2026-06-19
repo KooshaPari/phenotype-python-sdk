@@ -35,6 +35,7 @@ package = false
 # Map every intra-workspace package name to its local member so cross-kit
 # path dependencies (e.g. phenotype-testing -> phenotype-config) resolve.
 [tool.uv.sources]
+agentmcp = { workspace = true }
 agentmcp-hex = { workspace = true }
 ci-cd-kit = { workspace = true }
 mcp-qa = { workspace = true }
@@ -63,6 +64,7 @@ members = [
   # workspace members. Their non-Python assets remain absorbed under packages/.
   # agentmcp-hex: extracted from KooshaPari/McpKit (archived 2026-06-17).
   # Hexagonal DDD adapter layer; see packages/agentmcp-hex/ORIGIN.md.
+  'mcp/agentmcp',
   'packages/agentmcp-hex',
   'packages/data-kit/python/db_kit',
   'packages/observability-kit/python',

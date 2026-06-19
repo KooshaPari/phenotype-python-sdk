@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  SRC_DIR: src
+  TEST_DIR: tests
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  install:
+    desc: Install Python dependencies
+    cmds:
+      - pip install -e ".[dev]"
+
+  test:
+    desc: Run tests
+    cmds:
+      - pytest {{.TEST_DIR}} -v
+
+  lint:
+    desc: Lint code
+    cmds:
+      - ruff check {{.SRC_DIR}}
+      - ruff format --check {{.SRC_DIR}}
+      - mypy {{.SRC_DIR}}
+
+  fmt:
+    desc: Auto-format code
+    cmds:
+      - ruff format {{.SRC_DIR}}
+
+  typecheck:
+    desc: Run type checker
+    cmds:
+      - mypy {{.SRC_DIR}}
+
+  ci:
+    desc: CI-like run (install + test + lint)
+    cmds:
+      - task install
+      - task test
+      - task lint
+
+  clean:
+    desc: Clean artifacts
+    cmds:
+      - rm -rf build dist *.egg-info .pytest_cache .mypy_cache
