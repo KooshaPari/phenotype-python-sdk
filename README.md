@@ -69,6 +69,12 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 | pheno-cli-builder | `packages/pheno-cli-builder` |
 | pheno-cli-kit | `packages/pheno-cli-kit` |
 
+### Standalone SDK packages (not kits)
+
+| Package | Path | Notes |
+|---------|------|-------|
+| **agentmcp-hex** 🆕 | `packages/agentmcp-hex` | Agentic MCP framework with hexagonal DDD architecture (extracted from `KooshaPari/McpKit` 2026-06-18, source archived 2026-06-17). Domain / ports / adapters / app layout. See [`ORIGIN.md`](packages/agentmcp-hex/ORIGIN.md). |
+
 ### Python sub-projects (under kits)
 
 - `packages/testing-kit/python/` — `qa-kit`, `pheno-testing-cli`, `pheno-quality-tools`, `pheno-quality-cli`, `pheno-analysis-cli`, `mcp-qa`
