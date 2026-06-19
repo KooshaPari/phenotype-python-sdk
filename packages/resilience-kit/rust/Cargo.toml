@@ -22,7 +22,7 @@ async-trait = "0.1"
 thiserror = "2.0"
 futures = "0.3"
 rand = "0.10"
-# P4 slice 1 interim: generic cross-cutting contracts (MetricsHook) remain on phenoShared
-phenotype-contracts = { git = "https://github.com/KooshaPari/phenoShared", branch = "main", package = "phenotype-contracts" }
+# P4 slice 1: generic cross-cutting contracts (MetricsHook) → phenotype-rust-sdk main
+phenotype-contracts = { git = "https://github.com/KooshaPari/phenotype-rust-sdk", branch = "main" }
 # P4 slice 3: event/bus contracts terminal owner is Eventra
 phenotype-event-contracts = { git = "https://github.com/KooshaPari/Eventra", branch = "main", package = "phenotype-event-contracts" }
