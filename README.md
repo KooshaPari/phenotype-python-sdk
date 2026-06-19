@@ -54,7 +54,7 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 | **resilience-kit** | `packages/resilience-kit` | `[resilience]` | deploy-kit excluded from uv pending dep fix |
 | **data-kit** | `packages/data-kit` | — | `db_kit` uv member |
 | **auth-kit** | `packages/auth-kit` | `[connect]` | Consumer repoint pending (Tracera, thegent) |
-| **mcp-kit** | `packages/mcp-kit` | `[connect]` | Thin Py edge; framework → PhenoFastMCP |
+| **mcp-kit** ⚠️ | `packages/mcp-kit` | `[connect]` | **DEPRECATED 2026-06-18** — mirror of `KooshaPari/McpKit` (source archived 2026-06-17). Use [`PhenoFastMCP`](https://github.com/KooshaPari/PhenoFastMCP) / [`PhenoFastMCP-rust`](https://github.com/KooshaPari/PhenoFastMCP-rust) / [`PhenoFastMCP-go`](https://github.com/KooshaPari/PhenoFastMCP-go) instead. Full retirement scheduled **2026-06-22**. See [`packages/mcp-kit/DEPRECATED.md`](packages/mcp-kit/DEPRECATED.md). |
 
 ### Hoisted publishables (from PhenoKits de-nest)
 
