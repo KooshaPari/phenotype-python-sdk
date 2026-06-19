@@ -19,4 +19,4 @@ serde = { version = "1.0", features = ["derive"] }
 thiserror = "2.0"
 chrono = "0.4"
 # P4 slice 2: auth/policy contracts terminal owner is Authvault (not vendored generic copy)
-phenotype-auth-contracts = { git = "https://github.com/KooshaPari/Authvault.git", branch = "feat/p4-contracts-slice2-auth-policy", package = "phenotype-auth-contracts" }
+phenotype-auth-contracts = { git = "https://github.com/KooshaPari/Authvault.git", branch = "main", package = "phenotype-auth-contracts" }
