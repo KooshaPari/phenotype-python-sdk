@@ -2,7 +2,6 @@
 resolver = "2"
 members = [
     "phenotype-content-hash",
-    "phenotype-contracts",
     "phenotype-security-aggregator",
 ]
 
@@ -12,10 +11,12 @@ edition = "2021"
 rust-version = "1.75"
 authors = ["Phenotype Contributors"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/KooshaPari/AuthKit"
+repository = "https://github.com/KooshaPari/phenotype-python-sdk"
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "2.0"
 chrono = "0.4"
+# P4 slice 2: auth/policy contracts terminal owner is Authvault (not vendored generic copy)
+phenotype-auth-contracts = { git = "https://github.com/KooshaPari/Authvault.git", branch = "feat/p4-contracts-slice2-auth-policy", package = "phenotype-auth-contracts" }
