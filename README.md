@@ -38,6 +38,26 @@ Progress: ████████░░ 80%
 
 # phenotype-python-sdk
 
+## Quickstart
+
+> Phenotype-org Python SDK consolidating McpKit, TestingKit, AuthKit, ResilienceKit, PhenoKits Python packages
+
+```bash
+# Clone, build, test
+git clone https://github.com/KooshaPari/phenotype-python-sdk.git
+cd phenotype-python-sdk
+```
+
+```bash
+pip install phenotype_python_sdk
+```
+```python
+from phenotype_python_sdk import ...
+```
+
+See [SPEC.md](SPEC.md) for the full specification and [llms.txt](llms.txt) for machine-readable metadata.
+
+
 Monorepo of Phenotype org **Python SDK facades**, consolidated from standalone kit repositories.
 Polyglot trees inside kit subtrees are absorption staging — see [BOUNDARY.md](BOUNDARY.md).
 
