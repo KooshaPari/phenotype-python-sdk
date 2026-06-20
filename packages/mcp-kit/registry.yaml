@@ -1,5 +1,6 @@
 # McpKit Workspace Registry
 # Tracks packages and their status
+# Deprecated mirror of archived KooshaPari/McpKit; retained for transition.
 
 registry_version: "1.0.0"
 domain: mcpkit
@@ -22,4 +23,5 @@ workspaces:
     path: "typescript/"
     packages: []
 
-status: planning
+status: deprecated
+retired_on: "2026-06-22"

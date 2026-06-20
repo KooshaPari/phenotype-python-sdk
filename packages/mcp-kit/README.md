@@ -5,7 +5,9 @@
 [![License](https://img.shields.io/github/license/KooshaPari/McpKit)](LICENSE)
 [![Phenotype](https://img.shields.io/badge/Phenotype-org-blueviolet)](https://github.com/KooshaPari)
 
-Polyglot MCP (Model Context Protocol) framework SDK for the Phenotype ecosystem. Provides idiomatic client and server primitives in Go, Rust, TypeScript, and Python from a single registry-driven source of truth.
+> **Deprecated mirror:** this package mirrors the archived `KooshaPari/McpKit` source and is retained only for transition. The canonical MCP substrates are `PhenoFastMCP`, `PhenoFastMCP-rust`, and `PhenoFastMCP-go`. Do not add new development here; retirement remains scheduled for **2026-06-22**.
+
+Polyglot MCP (Model Context Protocol) framework SDK for the Phenotype ecosystem. Provides idiomatic client and server primitives in Go, Rust, TypeScript, and Python from a single registry-driven source of truth. The implementation surface is historical; use it only to understand the mirror layout.
 
 **Part of the [Phenotype org](https://github.com/KooshaPari) ecosystem.** Shares CI reusables and conventions with [phenoShared](https://github.com/KooshaPari/phenoShared). Follows org conventions: conventional commits, `<type>/<topic>` branching, Apache-2.0 + MIT dual license.
 
@@ -15,9 +17,9 @@ McpKit gives Phenotype services a uniform way to build and consume MCP servers/c
 
 Downstream consumers include agent frameworks, the [PhenoRuntime](https://github.com/KooshaPari/PhenoRuntime) MCP server, and external-intake pipelines.
 
-## Status (Phase 1)
+## Status (Deprecated mirror)
 
-This repository is in **early scaffolding**. Binding maturity differs by language — choose accordingly:
+This repository is a **deprecated mirror**. Binding maturity is listed for provenance only; use the replacement substrates instead:
 
 | Binding     | State           | Notes |
 |-------------|-----------------|-------|
