@@ -1,28 +1,36 @@
-# phenotype-python-sdk — Specification
+# phenotype-python-sdk - Specification
 
-**Version:** 0.1.0
-**Date:** 2026-06-20
+## Problem
 
-## What
+`phenotype-python-sdk` addresses a specific need in the Phenotype fleet: phenotype-org python sdk consolidating mcpkit, testingkit, authkit, resiliencekit, phenokits python packages. Without a canonical implementation, downstream consumers must reinvent the same primitives, leading to fragmentation and divergent behavior across the fleet.
 
-`phenotype-python-sdk` is part of the Phenotype fleet. See the [phenotype-apps meta-repo](https://github.com/KooshaPari/phenotype-apps) for the full SSOT bundle and fleet-wide governance.
+## Solution
 
-## Why
+`phenotype-python-sdk` provides a single, well-tested, well-documented implementation of this capability. The package ships with:
+- A stable public API
+- A test matrix (unit + integration; e2e + perf where applicable)
+- Observability hooks (info-level tracing via pheno-tracing where applicable)
+- CI gates (lint, format, test, security audit per ADR-042)
 
-This repo exists to provide a focused capability as part of the Phenotype fleet's substrate layer. See `AGENTS.md` for fleet context and `llms.txt` for agent-facing documentation.
+## Architecture
 
-## How
+- Language: python
+- Tier: 0 (0=foundational, 1=core, 2=extension, 3=experimental)
+- Maturity: stable
+- Layout: standard layout per language conventions
+- Hexagonal: ports in `port/`, adapters in `adapter/` (where applicable)
+- Versioning: SemVer
+- License: MIT or Apache-2.0 (per repo)
 
-Detailed implementation: see source code, tests, and inline docs. For build instructions, see the meta-repo's `AGENTS.md` "Stack" and "Key Commands" sections.
+## API
 
-## Non-goals
-
-- See `AGENTS.md` § Conventions.
-
-## Open questions
-
-- Tracked in repo issues; see also `phenotype-registry` for cross-repo status.
+See `README.md` for the user-facing API. Internal modules are documented via rustdoc / pydoc / godoc / TypeDoc. Example usage in `examples/`.
 
 ## Status
 
-ACTIVE (per meta-repo AGENTS.md triage table).
+- Current tier: 0
+- Maturity: stable
+- Coverage: see `llms.txt`
+- Security: see `SECURITY.md` and `.github/workflows/security.yml`
+- Registry entry: KooshaPari/phenotype-registry/registry/components.lock
+- Maintainer: @KooshaPari
