@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "phenotype-py-extras"
+version = "0.1.0"
+description = "Consolidated Python extras: llms_txt + request_id + prompt_test (L5-114 recovery)."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "KooshaPari", email = "koosha@example.invalid" }]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "click>=8.0",
+]
+
+[project.optional-dependencies]
+cli = ["click>=8.0"]
+web = ["fastapi>=0.115"]
+observability = ["structlog>=24.0"]
+testing = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+all = [
+    "click>=8.0",
+    "fastapi>=0.115",
+    "structlog>=24.0",
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+
+[project.entry-points.pytest11]
+pheno_prompt_test = "phenotype_py_extras.prompt_test"
+
+[project.scripts]
+pheno-llms-txt = "phenotype_py_extras.llms_txt.cli:cli_main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/phenotype_py_extras"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-ra -q --strict-markers"
+asyncio_mode = "auto"

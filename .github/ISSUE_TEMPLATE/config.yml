@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a bug in phenotype-py-extras
+labels: ["bug"]
+body:
+  - type: input
+    id: submodule
+    attributes:
+      label: Which submodule?
+      description: Select the affected submodule.
+      options:
+        - llms_txt
+        - request_id
+        - prompt_test
+        - other / packaging
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      render: shell
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - Python version: 3.x
+        - phenotype-py-extras version: 0.x.y
+        - OS: ...
+---
+name: Feature request
+description: Suggest a new feature
+labels: ["enhancement"]
+body:
+  - type: input
+    id: submodule
+    attributes:
+      label: Submodule
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API
+    validations:
+      required: true
