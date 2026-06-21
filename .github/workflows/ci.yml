@@ -32,9 +32,7 @@ jobs:
         # excluded from the gate alongside templates/tests.
         run: |
           ruff check \
-            packages/auth-kit/python \
-            packages/testing-kit/python \
-            packages/resilience-kit/python \
+            packages/phenotype-py-extras \
             --select F,E9 --ignore E501 \
             --exclude '*_old.py' \
             --exclude 'original_source'
@@ -42,6 +40,4 @@ jobs:
         # -x skips the archival snapshot and legacy modules excluded above.
         run: |
           python -m compileall -q -x '(original_source|_old\.py)' \
-            packages/auth-kit/python \
-            packages/testing-kit/python \
-            packages/resilience-kit/python
+            packages/phenotype-py-extras
