@@ -15,4 +15,4 @@ See:
 """
 
 __version__ = "0.1.0"
-__all__ = ["llms_txt"]
+__all__ = ["llms_txt", "prompt_test"]  # L5-114 recovery: PR #1 (llms_txt) + PR #3 (prompt_test)
