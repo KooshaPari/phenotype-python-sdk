@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import json
 
-import pytest
-
 from phenotype_py_extras.prompt_test import runner as runner_mod
 
 

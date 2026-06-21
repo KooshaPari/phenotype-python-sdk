@@ -15,8 +15,6 @@ Behaviour:
 from __future__ import annotations
 
 import contextvars
-from typing import Awaitable, Callable
-
 from .context import new_request_id, reset_request_id, set_request_id
 
 

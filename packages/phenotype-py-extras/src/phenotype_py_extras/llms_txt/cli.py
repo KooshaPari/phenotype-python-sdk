@@ -5,8 +5,6 @@ Absorbed from KooshaPari/pheno-llms-txt/src/pheno_llms_txt/cli.py:1-23 (L5-114, 
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import click
 
 from .config import load_config

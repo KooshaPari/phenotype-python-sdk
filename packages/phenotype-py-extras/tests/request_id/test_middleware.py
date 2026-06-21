@@ -5,8 +5,6 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-import pytest
-
 from phenotype_py_extras.request_id.context import get_request_id
 from phenotype_py_extras.request_id.middleware import RequestIDMiddleware
 
