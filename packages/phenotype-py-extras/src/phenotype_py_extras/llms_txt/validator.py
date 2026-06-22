@@ -8,12 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from .config import LlmConfig, load_config
+from .config import ConfigError, LlmConfig, load_config
 from .renderer import write_llms_txt
-
-
-class ConfigError(ValueError):
-    """Raised when an LlmConfig fails validation."""
 
 
 def validate_config(cfg: LlmConfig) -> None:
@@ -26,7 +22,14 @@ def validate_config(cfg: LlmConfig) -> None:
         raise ConfigError("install section is required")
     if not cfg.usage.strip():
         raise ConfigError("usage section is required")
-    for i, (title, _fix) in enumerate(cfg.common_errors):
+    for i, error in enumerate(cfg.common_errors):
+        if (
+            isinstance(error, (str, bytes))
+            or not isinstance(error, (list, tuple))
+            or len(error) != 2
+        ):
+            raise ConfigError(f"common_errors[{i}] must be a [title, fix] pair")
+        title, _fix = error
         if not title.strip():
             raise ConfigError(f"common_errors[{i}].title is empty")
 

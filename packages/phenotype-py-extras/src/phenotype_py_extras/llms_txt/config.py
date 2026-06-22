@@ -7,9 +7,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 
 import yaml
+
+
+class ConfigError(ValueError):
+    """Raised when an LlmConfig cannot be built from user configuration."""
 
 
 @dataclass
@@ -30,17 +34,43 @@ class LlmConfig:
 
         Tolerates missing keys; defaults are empty strings / lists.
         """
-        errors_raw = data.get("common_errors", []) or []
-        errors = [tuple(e) for e in errors_raw] if errors_raw else []
         return cls(
             repo_name=str(data.get("repo_name", "")),
             tagline=str(data.get("tagline", "")),
             install=str(data.get("install", "")),
             usage=str(data.get("usage", "")),
             public_api=str(data.get("public_api", "")),
-            common_errors=errors,
-            references=list(data.get("references", []) or []),
+            common_errors=_coerce_common_errors(data.get("common_errors", [])),
+            references=_coerce_string_list(data.get("references", []), "references"),
         )
+
+
+def _coerce_common_errors(value: Any) -> list[tuple[str, str]]:
+    if value is None:
+        return []
+    if isinstance(value, (str, bytes)) or not isinstance(value, list):
+        raise ConfigError("common_errors must be a list of [title, fix] pairs")
+    errors: list[tuple[str, str]] = []
+    for index, item in enumerate(value):
+        if (
+            isinstance(item, (str, bytes))
+            or not isinstance(item, (list, tuple))
+            or len(item) != 2
+        ):
+            raise ConfigError(f"common_errors[{index}] must be a [title, fix] pair")
+        title, fix = item
+        errors.append((str(title), str(fix)))
+    return errors
+
+
+def _coerce_string_list(value: Any, field_name: str) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, bytes) or not isinstance(value, list):
+        raise ConfigError(f"{field_name} must be a string or list of strings")
+    return [str(item) for item in value]
 
 
 def load_config(path: Optional[str | Path]) -> LlmConfig:
@@ -65,5 +95,5 @@ def load_config(path: Optional[str | Path]) -> LlmConfig:
     with p.open("r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh) or {}
     if not isinstance(data, dict):
-        raise ValueError(f"Top-level YAML must be a mapping, got {type(data).__name__}")
+        raise ConfigError(f"Top-level YAML must be a mapping, got {type(data).__name__}")
     return LlmConfig.from_dict(data)

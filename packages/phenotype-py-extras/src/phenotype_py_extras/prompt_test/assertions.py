@@ -23,6 +23,17 @@ def _normalize(s: str, strip: bool, ignore_case: bool) -> str:
     return out
 
 
+def _normalize_json_keys(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            str(key).lower(): _normalize_json_keys(child)
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [_normalize_json_keys(child) for child in value]
+    return value
+
+
 def assert_prompt_match(
     actual: str,
     expected: str,
@@ -64,7 +75,8 @@ def assert_prompt_json(actual: str, expected: Any, *, ignore_case_keys: bool = F
     except json.JSONDecodeError as exc:
         raise AssertionError(f"prompt is not valid JSON: {exc}; got: {actual!r}") from exc
     if ignore_case_keys:
-        parsed = {k.lower(): v for k, v in parsed.items()} if isinstance(parsed, dict) else parsed
+        parsed = _normalize_json_keys(parsed)
+        expected = _normalize_json_keys(expected)
     if parsed != expected:
         raise AssertionError(
             f"prompt JSON mismatch:\n  expected: {expected!r}\n  actual:   {parsed!r}"

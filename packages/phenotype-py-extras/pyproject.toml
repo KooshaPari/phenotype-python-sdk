@@ -43,7 +43,7 @@ all = [
 ]
 
 [project.entry-points.pytest11]
-pheno_prompt_test = "phenotype_py_extras.prompt_test"
+pheno_prompt_test = "phenotype_py_extras.prompt_test.runner"
 
 [project.scripts]
 pheno-llms-txt = "phenotype_py_extras.llms_txt.cli:cli_main"

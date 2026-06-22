@@ -21,7 +21,7 @@ import pytest
 
 CACHE_DIR_OPTION = "--prompt-cache-dir"
 DEFAULT_CACHE_DIR = ".pheno_prompts"
-PROMPT_FIXTURE_GLOB = ("*.txt", "*.json")
+PROMPT_FIXTURE_EXTENSIONS = ("txt", "json")
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -79,9 +79,9 @@ def pheno_prompt(request: pytest.FixtureRequest) -> dict | str | None:
     candidates: list[Path] = []
     for name in (test_name,):
         if module_path:
-            for ext in PROMPT_FIXTURE_GLOB:
+            for ext in PROMPT_FIXTURE_EXTENSIONS:
                 candidates.append(Path("prompts") / module_path / f"{name}.{ext}")
-        for ext in PROMPT_FIXTURE_GLOB:
+        for ext in PROMPT_FIXTURE_EXTENSIONS:
             candidates.append(Path("prompts") / f"{name}.{ext}")
     for path in candidates:
         if path.is_file():

@@ -35,7 +35,14 @@ def _format_common_errors(errors: list[tuple[str, str]]) -> str:
     if not errors:
         return ""
     lines = ["\n## Common errors\n"]
-    for title, fix in errors:
+    for index, error in enumerate(errors):
+        if (
+            isinstance(error, (str, bytes))
+            or not isinstance(error, (list, tuple))
+            or len(error) != 2
+        ):
+            raise ValueError(f"common_errors[{index}] must be a [title, fix] pair")
+        title, fix = error
         lines.append(f"- **{title}** — {fix}")
     return "\n".join(lines) + "\n"
 
