@@ -8,6 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+import yaml
+
 from .config import ConfigError, LlmConfig, load_config
 from .renderer import write_llms_txt
 
@@ -34,20 +36,6 @@ def validate_config(cfg: LlmConfig) -> None:
             raise ConfigError(f"common_errors[{i}].title is empty")
 
 
-_STARTER_YAML = """\
-repo_name: {repo_name}
-tagline: {tagline}
-install: |
-  pip install {repo_name}
-usage: |
-  from {module_name} import ...
-public_api: |
-  # TBD
-common_errors: []
-references: []
-"""
-
-
 def init_llms(
     repo_dir: str | Path,
     *,
@@ -70,8 +58,17 @@ def init_llms(
     created_config = False
     if not config_path.exists():
         module_name = module_name or repo_name.replace("-", "_")
+        starter = {
+            "repo_name": repo_name,
+            "tagline": tagline,
+            "install": f"pip install {repo_name}",
+            "usage": f"from {module_name} import ...",
+            "public_api": "# TBD",
+            "common_errors": [],
+            "references": [],
+        }
         config_path.write_text(
-            _STARTER_YAML.format(repo_name=repo_name, tagline=tagline, module_name=module_name),
+            yaml.safe_dump(starter, sort_keys=False, allow_unicode=True),
             encoding="utf-8",
         )
         created_config = True
