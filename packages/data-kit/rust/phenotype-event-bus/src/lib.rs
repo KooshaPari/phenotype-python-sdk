@@ -1,19 +1,23 @@
 //! Phenotype Event Bus - Async event publishing and subscription
 //!
-//! Provides an in-memory and pluggable event bus for decoupled communication.
+//! Provides a compatibility facade over the canonical `pheno-events` bus.
 
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-use std::any::{Any, TypeId};
+use std::any::Any;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use dashmap::DashMap;
+use pheno_events::{
+    bus::{Bus as CanonicalBus, InMemoryBus, Subscription},
+    core::EventEnvelope as CanonicalEnvelope,
+};
 use serde::{de::DeserializeOwned, Serialize};
-use tokio::sync::{broadcast, mpsc};
-use tracing::debug;
+use tokio::sync::{broadcast, mpsc, OnceCell};
 use uuid::Uuid;
+
+const LEGACY_SOURCE: &str = "phenotype-python-sdk";
 
 /// Event trait for all bus events
 pub trait Event: Send + Sync + Serialize + 'static {
@@ -68,19 +72,45 @@ pub enum EventBusError {
 
 /// In-memory event bus implementation
 pub struct InMemoryEventBus {
-    channels: DashMap<TypeId, Box<dyn Any + Send + Sync>>,
+    canonical: InMemoryBus,
     broadcast_tx: broadcast::Sender<EventEnvelope>,
-    _broadcast_rx: Arc<broadcast::Receiver<EventEnvelope>>,
+    bridge: OnceCell<Subscription>,
 }
 
 impl InMemoryEventBus {
     pub fn new(capacity: usize) -> Self {
-        let (tx, rx) = broadcast::channel(capacity);
+        let (tx, _) = broadcast::channel(capacity);
         Self {
-            channels: DashMap::new(),
+            canonical: InMemoryBus::new(),
             broadcast_tx: tx,
-            _broadcast_rx: Arc::new(rx),
+            bridge: OnceCell::new(),
         }
+    }
+
+    async fn ensure_bridge(&self) -> Result<(), EventBusError> {
+        let sender = self.broadcast_tx.clone();
+        self.bridge
+            .get_or_try_init(|| async move {
+                self.canonical
+                    .subscribe(Arc::new(move |event, _last_seen| {
+                        let sender = sender.clone();
+                        Box::pin(async move {
+                            let legacy = EventEnvelope {
+                                id: event.id,
+                                event_type: event.event_type,
+                                payload: event.payload,
+                                metadata: HashMap::new(),
+                                timestamp: event.timestamp,
+                            };
+                            let _ = sender.send(legacy);
+                            Ok(())
+                        })
+                    }))
+                    .await
+                    .map_err(|error| EventBusError::SubscribeFailed(error.to_string()))
+            })
+            .await
+            .map(|_| ())
     }
 }
 
@@ -93,29 +123,39 @@ impl Default for InMemoryEventBus {
 #[async_trait]
 impl EventBus for InMemoryEventBus {
     async fn publish<E: Event>(&self, event: E) -> Result<(), EventBusError> {
-        let envelope = EventEnvelope {
-            id: event.event_id(),
-            event_type: event.event_type().to_string(),
-            payload: serde_json::to_value(&event)
-                .map_err(|e| EventBusError::PublishFailed(e.to_string()))?,
-            metadata: HashMap::new(),
-            timestamp: event.timestamp(),
-        };
-
-        // Send to broadcast channel
-        let _ = self.broadcast_tx.send(envelope.clone());
-
-        debug!("Published event: {}", envelope.event_type);
+        self.ensure_bridge().await?;
+        self.canonical
+            .publish(CanonicalEnvelope {
+                id: event.event_id(),
+                event_type: event.event_type().to_string(),
+                source: LEGACY_SOURCE.to_string(),
+                timestamp: event.timestamp(),
+                causation_id: None,
+                correlation_id: None,
+                schema_version: 1,
+                payload: serde_json::to_value(&event)
+                    .map_err(|error| EventBusError::PublishFailed(error.to_string()))?,
+            })
+            .await
+            .map_err(|error| EventBusError::PublishFailed(error.to_string()))?;
         Ok(())
     }
 
-    async fn subscribe<E: Event>(&self) -> Result<mpsc::Receiver<E>, EventBusError> {
+    async fn subscribe<E: Event + DeserializeOwned>(
+        &self,
+    ) -> Result<mpsc::Receiver<E>, EventBusError> {
         let (tx, rx) = mpsc::channel(100);
-        let type_id = TypeId::of::<E>();
-
-        // Store the sender for this type
-        self.channels
-            .insert(type_id, Box::new(tx) as Box<dyn Any + Send + Sync>);
+        self.ensure_bridge().await?;
+        let mut events = self.broadcast_tx.subscribe();
+        tokio::spawn(async move {
+            while let Ok(envelope) = events.recv().await {
+                if let Ok(event) = serde_json::from_value(envelope.payload) {
+                    if tx.send(event).await.is_err() {
+                        break;
+                    }
+                }
+            }
+        });
 
         Ok(rx)
     }
@@ -202,5 +242,77 @@ impl<F: Fn(&EventEnvelope) -> bool> FilteredStream<F> {
                 None => return None,
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Event, EventBus, InMemoryEventBus};
+    use chrono::{DateTime, Utc};
+    use serde::{Deserialize, Serialize};
+    use tokio::time::{timeout, Duration};
+    use uuid::Uuid;
+
+    #[derive(Debug, Clone, Deserialize, Serialize)]
+    struct UserCreated {
+        id: Uuid,
+        timestamp: DateTime<Utc>,
+    }
+
+    impl Event for UserCreated {
+        fn event_type(&self) -> &'static str {
+            "user.created"
+        }
+
+        fn event_id(&self) -> Uuid {
+            self.id
+        }
+
+        fn timestamp(&self) -> DateTime<Utc> {
+            self.timestamp
+        }
+
+        fn as_any(&self) -> &dyn std::any::Any {
+            self
+        }
+    }
+
+    #[tokio::test]
+    async fn publish_forwards_through_the_canonical_bus() {
+        let bus = InMemoryEventBus::default();
+        let mut all_events = bus.subscribe_all().expect("subscribe all");
+        let event = UserCreated {
+            id: Uuid::now_v7(),
+            timestamp: Utc::now(),
+        };
+
+        bus.publish(event.clone()).await.expect("publish");
+
+        let envelope = timeout(Duration::from_secs(1), all_events.recv())
+            .await
+            .expect("delivery timeout")
+            .expect("broadcast delivery");
+        assert_eq!(envelope.id, event.id);
+        assert_eq!(envelope.event_type, "user.created");
+        assert_eq!(envelope.payload["id"], event.id.to_string());
+    }
+
+    #[tokio::test]
+    async fn typed_subscription_deserializes_legacy_events() {
+        let bus = InMemoryEventBus::default();
+        let mut receiver = bus.subscribe::<UserCreated>().await.expect("subscribe");
+        tokio::task::yield_now().await;
+        let event = UserCreated {
+            id: Uuid::now_v7(),
+            timestamp: Utc::now(),
+        };
+
+        bus.publish(event.clone()).await.expect("publish");
+
+        let received = timeout(Duration::from_secs(1), receiver.recv())
+            .await
+            .expect("delivery timeout")
+            .expect("typed delivery");
+        assert_eq!(received.id, event.id);
     }
 }
