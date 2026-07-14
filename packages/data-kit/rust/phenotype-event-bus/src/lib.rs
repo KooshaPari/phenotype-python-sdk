@@ -95,11 +95,28 @@ impl InMemoryEventBus {
                     .subscribe(Arc::new(move |event, _last_seen| {
                         let sender = sender.clone();
                         Box::pin(async move {
+                            let mut metadata = HashMap::from([
+                                ("source".to_string(), event.source),
+                                (
+                                    "schema_version".to_string(),
+                                    event.schema_version.to_string(),
+                                ),
+                            ]);
+                            if let Some(causation_id) = event.causation_id {
+                                metadata
+                                    .insert("causation_id".to_string(), causation_id.to_string());
+                            }
+                            if let Some(correlation_id) = event.correlation_id {
+                                metadata.insert(
+                                    "correlation_id".to_string(),
+                                    correlation_id.to_string(),
+                                );
+                            }
                             let legacy = EventEnvelope {
                                 id: event.id,
                                 event_type: event.event_type,
                                 payload: event.payload,
-                                metadata: HashMap::new(),
+                                metadata,
                                 timestamp: event.timestamp,
                             };
                             let _ = sender.send(legacy);
@@ -160,7 +177,10 @@ impl EventBus for InMemoryEventBus {
                                 }
                             }
                         }
-                        Err(broadcast::error::RecvError::Lagged(_)) => continue,
+                        Err(broadcast::error::RecvError::Lagged(skipped)) => {
+                            tracing::warn!(skipped, "typed event subscription lagged; events were skipped");
+                            continue;
+                        }
                         Err(broadcast::error::RecvError::Closed) => break,
                     }
                 }
@@ -257,7 +277,7 @@ impl<F: Fn(&EventEnvelope) -> bool> FilteredStream<F> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Event, EventBus, InMemoryEventBus};
+    use super::{Event, EventBus, InMemoryEventBus, LEGACY_SOURCE};
     use chrono::{DateTime, Utc};
     use serde::{Deserialize, Serialize};
     use tokio::time::{timeout, Duration};
@@ -305,6 +325,8 @@ mod tests {
         assert_eq!(envelope.id, event.id);
         assert_eq!(envelope.event_type, "user.created");
         assert_eq!(envelope.payload["id"], event.id.to_string());
+        assert_eq!(envelope.metadata["source"], LEGACY_SOURCE);
+        assert_eq!(envelope.metadata["schema_version"], "1");
     }
 
     #[tokio::test]
