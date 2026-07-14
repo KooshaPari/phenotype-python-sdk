@@ -148,10 +148,20 @@ impl EventBus for InMemoryEventBus {
         self.ensure_bridge().await?;
         let mut events = self.broadcast_tx.subscribe();
         tokio::spawn(async move {
-            while let Ok(envelope) = events.recv().await {
-                if let Ok(event) = serde_json::from_value(envelope.payload) {
-                    if tx.send(event).await.is_err() {
-                        break;
+            loop {
+                tokio::select! {
+                    _ = tx.closed() => break,
+                    received = events.recv() => match received {
+                        Ok(envelope) => {
+                            let event_type = envelope.event_type;
+                            if let Ok(event) = serde_json::from_value::<E>(envelope.payload) {
+                                if event.event_type() == event_type && tx.send(event).await.is_err() {
+                                    break;
+                                }
+                            }
+                        }
+                        Err(broadcast::error::RecvError::Lagged(_)) => continue,
+                        Err(broadcast::error::RecvError::Closed) => break,
                     }
                 }
             }
