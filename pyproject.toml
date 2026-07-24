@@ -29,6 +29,28 @@ readme = 'README.md'
 license = { text = 'MIT' }
 requires-python = '>=3.10'
 
+# Root has no installable Python code — it's a uv workspace aggregator only.
+# `tool.uv.package = false` already prevents IMPLICIT uv builds (`uv sync`,
+# `uv run`), but EXPLICIT pip installs (`pip install <workspace-path>`,
+# `uv pip install <workspace-path>`) ignore that flag and fall back to
+# setuptools auto-discovery, which then refuses to build because the repo
+# is a flat layout containing both `okf/` and `packages/` top-level
+# directories. The minimal non-disruptive fix is to declare setuptools
+# discovery rules that match nothing — no `__init__.py`-bearing top-level
+# Python module is shipped from the root. Per-kit installs still come
+# from `[tool.uv.workspace] members`.
+#
+# Verified working pattern, upstream discussion: astral-sh/uv#12352
+# (`[tool.setuptools] py-modules = []` suppresses the multi-package error
+# because setuptools has no top-level modules to look for).
+[tool.setuptools]
+py-modules = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = []
+namespaces = false
+
 [tool.uv]
 package = false
 
