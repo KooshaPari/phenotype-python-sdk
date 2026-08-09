@@ -74,6 +74,7 @@ phenotype-id = { workspace = true }
 phenotype-logging = { workspace = true }
 phenotype-py-kit = { workspace = true }
 phenotype-testing = { workspace = true }
+phenokit-config-kit = { workspace = true }
 qa-kit = { workspace = true }
 
 [tool.uv.workspace]
@@ -108,6 +109,11 @@ members = [
   'packages/phenotype-py-kit',
   'packages/phenotype-testing',
   'packages/phenotype-config',
+  # phenokit-config-kit: intake from KooshaPari/phenotype-sdk Phase 3 (decomp).
+  # Linting/pre-commit/pytest scaffolds — intentionally distinct from
+  # packages/phenotype-config (which is Pydantic-settings). See packages/
+  # phenokit-config-kit/ORIGIN.md.
+  'packages/phenokit-config-kit',
 ]
 exclude = [
   'packages/auth-kit',
