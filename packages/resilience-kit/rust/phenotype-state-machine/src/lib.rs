@@ -203,7 +203,7 @@ mod tests {
     impl State for TestState {
         type Id = String;
 
-        fn state_id(&self) -> Self::Id {
+        fn id(&self) -> Self::Id {
             format!("state_{}", self.value)
         }
 
