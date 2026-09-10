@@ -66,7 +66,7 @@ class PlatformDetector:
         Returns:
             Platform name (default: "docker")
         """
-        platforms = self.detect_all()
+        platforms = [p for p in self.detect_all() if p.detected]
 
         if not platforms:
             return "docker"  # Default fallback
