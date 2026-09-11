@@ -67,7 +67,6 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 
 ## Workspace kits
 
-<<<<<<< HEAD
 | Kit | Path | Role extra | Notes |
 |-----|------|------------|-------|
 | **observability-kit** | `packages/observability-kit` | `[observe]` | Python facade; Rust → PhenoObservability |
