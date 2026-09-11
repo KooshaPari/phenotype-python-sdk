@@ -3,6 +3,7 @@
 <!-- Slop issues are expected and intentionally present as part of an HITL-less -->
 <!-- /minimized AI-DD metaproject of learning, refining, and building brute-force -->
 <!-- training for both agents and the human operator. -->
+
 ![Downloads](https://img.shields.io/github/downloads/KooshaPari/phenotype-python-sdk/total?style=flat-square&label=downloads&color=blue) [![AI slop inside](https://sladge.net/badge.svg)](https://sladge.net)
 ![GitHub release](https://img.shields.io/github/v/release/KooshaPari/phenotype-python-sdk?style=flat-square&label=release)
 ![License](https://img.shields.io/github/license/KooshaPari/phenotype-python-sdk?style=flat-square)
@@ -18,6 +19,7 @@
 > on learning, refining, and brute-force training both the agents and the
 > human operator. Bug reports and contributions are still welcome, but please
 > expect AI-generated code, comments, and documentation throughout.
+
 <!-- AI-DD-META:END -->
 
 > **Boundary disposition (Block-C, 2026-06-17):** This repo is the canonical **`py-sdk-index`**
@@ -27,12 +29,12 @@
 
 ## Work State
 
-| Field | Value |
-|---|---|
-| Last commit | 2026-06-17 |
-| Open issues | 1 |
-| Open PRs | 1 |
-| Focus | Block-C boundary disposition + uv workspace hygiene |
+| Field       | Value                                               |
+| ----------- | --------------------------------------------------- |
+| Last commit | 2026-06-17                                          |
+| Open issues | 1                                                   |
+| Open PRs    | 1                                                   |
+| Focus       | Block-C boundary disposition + uv workspace hygiene |
 
 Progress: ████████░░ 80%
 
@@ -51,12 +53,12 @@ cd phenotype-python-sdk
 ```bash
 pip install phenotype_python_sdk
 ```
+
 ```python
 from phenotype_python_sdk import ...
 ```
 
 See [SPEC.md](SPEC.md) for the full specification and [llms.txt](llms.txt) for machine-readable metadata.
-
 
 Monorepo of Phenotype org **Python SDK facades**, consolidated from standalone kit repositories.
 Polyglot trees inside kit subtrees are absorption staging — see [BOUNDARY.md](BOUNDARY.md).
@@ -67,31 +69,31 @@ Genesis documentation (charter, intent, SOTA, review, OKF): see [charter.md](cha
 
 ## Workspace kits
 
-| Kit | Path | Role extra | Notes |
-|-----|------|------------|-------|
-| **observability-kit** | `packages/observability-kit` | `[observe]` | Python facade; Rust → PhenoObservability |
-| **testing-kit** | `packages/testing-kit` | `[test]` | mcp-qa reconciled; Rust → TestingKit |
-| **resilience-kit** | `packages/resilience-kit` | `[resilience]` | deploy-kit excluded from uv pending dep fix |
-| **data-kit** | `packages/data-kit` | — | `db_kit` uv member |
-| **auth-kit** | `packages/auth-kit` | `[connect]` | Consumer repoint pending (Tracera, thegent) |
-| **mcp-kit** ⚠️ deprecated | `packages/mcp-kit` | `[connect]` | ~~Thin Py edge; framework → PhenoFastMCP~~ **DEPRECATED 2026-06-18** (effective 2026-06-22). Source `KooshaPari/McpKit` archived 2026-06-17; mirror is incomplete. Migrate to [`PhenoFastMCP`](https://github.com/KooshaPari/PhenoFastMCP) / [`PhenoFastMCP-rust`](https://github.com/KooshaPari/PhenoFastMCP-rust) / [`PhenoFastMCP-go`](https://github.com/KooshaPari/PhenoFastMCP-go). See `packages/mcp-kit/DEPRECATED.md`. |
+| Kit                       | Path                         | Role extra     | Notes                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------- | ---------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **observability-kit**     | `packages/observability-kit` | `[observe]`    | Python facade; Rust → PhenoObservability                                                                                                                                                                                                                                                                                                                                                                                        |
+| **testing-kit**           | `packages/testing-kit`       | `[test]`       | mcp-qa reconciled; Rust → TestingKit                                                                                                                                                                                                                                                                                                                                                                                            |
+| **resilience-kit**        | `packages/resilience-kit`    | `[resilience]` | deploy-kit excluded from uv pending dep fix                                                                                                                                                                                                                                                                                                                                                                                     |
+| **data-kit**              | `packages/data-kit`          | —              | `db_kit` uv member                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **auth-kit**              | `packages/auth-kit`          | `[connect]`    | Consumer repoint pending (Tracera, thegent)                                                                                                                                                                                                                                                                                                                                                                                     |
+| **mcp-kit** ⚠️ deprecated | `packages/mcp-kit`           | `[connect]`    | ~~Thin Py edge; framework → PhenoFastMCP~~ **DEPRECATED 2026-06-18** (effective 2026-06-22). Source `KooshaPari/McpKit` archived 2026-06-17; mirror is incomplete. Migrate to [`PhenoFastMCP`](https://github.com/KooshaPari/PhenoFastMCP) / [`PhenoFastMCP-rust`](https://github.com/KooshaPari/PhenoFastMCP-rust) / [`PhenoFastMCP-go`](https://github.com/KooshaPari/PhenoFastMCP-go). See `packages/mcp-kit/DEPRECATED.md`. |
 
 ### Hoisted publishables (from PhenoKits de-nest)
 
-| Package | Path |
-|---------|------|
-| phenotype-config | `packages/phenotype-config` |
+| Package           | Path                         |
+| ----------------- | ---------------------------- |
+| phenotype-config  | `packages/phenotype-config`  |
 | phenotype-logging | `packages/phenotype-logging` |
-| phenotype-id | `packages/phenotype-id` |
-| phenotype-py-kit | `packages/phenotype-py-kit` |
+| phenotype-id      | `packages/phenotype-id`      |
+| phenotype-py-kit  | `packages/phenotype-py-kit`  |
 | phenotype-testing | `packages/phenotype-testing` |
 | pheno-cli-builder | `packages/pheno-cli-builder` |
-| pheno-cli-kit | `packages/pheno-cli-kit` |
+| pheno-cli-kit     | `packages/pheno-cli-kit`     |
 
 ### Standalone SDK packages (not kits)
 
-| Package | Path | Notes |
-|---------|------|-------|
+| Package             | Path                    | Notes                                                                                                                                                                                                                          |
+| ------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **agentmcp-hex** 🆕 | `packages/agentmcp-hex` | Agentic MCP framework with hexagonal DDD architecture (extracted from `KooshaPari/McpKit` 2026-06-18, source archived 2026-06-17). Domain / ports / adapters / app layout. See [`ORIGIN.md`](packages/agentmcp-hex/ORIGIN.md). |
 
 ### Python sub-projects (under kits)
