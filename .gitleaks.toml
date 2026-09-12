@@ -7,28 +7,44 @@ title = "Phenotype fleet gitleaks config"
 useDefault = true
 
 [allowlist]
+# Paths use regex syntax (NOT glob). gitleaks v8 was panicking on
+# glob-style entries like '*.lock' and 'node_modules/' with
+# 'regexp: Compile(*.lock): error parsing regexp: missing argument
+# to repetition operator: *'.
+#
+# Each path matches at the start of any segment (root-level OR
+# nested), so 'node_modules/file' AND 'foo/node_modules/bar' both
+# match the node_modules entry below.
 paths = [
-  'target/',
-  'node_modules/',
-  '.venv/',
-  '__pycache__/',
-  'dist/',
-  'build/',
-  '.cargo/',
-  '.pytest_cache/',
-  '*.lock',
-  'Cargo.lock',
-  'package-lock.json',
-  'yarn.lock',
-  'pnpm-lock.yaml',
-  'poetry.lock',
-  'go.sum',
+  '(?:^|/)target/',
+  '(?:^|/)node_modules/',
+  '(?:^|/)\\.venv/',
+  '(?:^|/)__pycache__/',
+  '(?:^|/)dist/',
+  '(?:^|/)build/',
+  '(?:^|/)\\.cargo/',
+  '(?:^|/)\\.pytest_cache/',
+  '(?:^|/)[^/]*\\.lock$',
+  '(?:^|/)Cargo\\.lock$',
+  '(?:^|/)package-lock\\.json$',
+  '(?:^|/)yarn\\.lock$',
+  '(?:^|/)pnpm-lock\\.yaml$',
+  '(?:^|/)poetry\\.lock$',
+  '(?:^|/)go\\.sum$',
+  # Test fixtures (deliberately fake test-* keys/tokens/secrets)
+  '(?:^|/)(?:[^/]*/)?pytest/fixtures/',
+  '(?:^|/)(?:[^/]*/)?tests/fixtures/',
+  '(?:^|/)(?:[^/]*/)?testdata/',
+  '(?:^|/)(?:[^/]*/)?test_data/',
 ]
 
+# Allow test_*_token / test_*_key style placeholder values that
+# frequently appear in pytest fixtures.
 regexes = [
   'test[_-]?fixture',
   'mock[_-]?key',
   'example[_-]?token',
   'EXAMPLE_API_KEY',
   'FAKE_TOKEN',
+  '''(?:^|[\\'"])test[-_][a-z]+(?:[-_]key|[-_]token|[-_]secret)''',
 ]
